@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Thêm Student</title>
-</head>
-<body>
 <style>
     #add-student-form {
         display: none;
@@ -100,7 +94,7 @@
             <label>Student ID:</label>
             <input type="text" name="student_id" required>
             <label>Email:</label>
-            <input type="email" name="email_address" pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" required>
+            <input type="email" name="email_address" pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$" required>
             <label>Password:</label>
             <input type="password" name="password" required>
             <label>Username:</label>
@@ -121,4 +115,3 @@
         <div id="student-form-message"></div>
     </div>
 </div>
-</body>

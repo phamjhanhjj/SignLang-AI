@@ -50,7 +50,7 @@
                 <label>Student ID:</label>
                 <input type="text" name="student_id" readonly>
                 <label>Email:</label>
-                <input type="email" name="email_address" pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" required>
+                <input type="email" name="email_address" pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$" required>
                 <label>Password (để trống nếu không đổi):</label>
                 <input type="password" name="password">
                 <label>Username:</label>

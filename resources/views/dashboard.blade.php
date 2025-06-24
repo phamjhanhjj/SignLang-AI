@@ -117,6 +117,9 @@
                     case 'student':
                         showEditStudentForm(id);
                         break;
+                    case 'student_progress':
+                        showEditStudentProgressForm(id);
+                        break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -166,6 +169,58 @@
                             })
                             .catch(() => {
                                 document.getElementById('edit-student-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
+            // Hiển thị form sửa Student Progress
+            function showEditStudentProgressForm(progressId) {
+                //Lấy thông tin tuwf server
+                fetch(`/student-progress/${progressId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-student-progress-form').style.display = 'block';
+                        const form = document.getElementById('update-student-progress-form');
+                        if (data.success && data.data) {
+                            const progress = data.data;
+                            form.student_id.value = progress.student_id;
+                            form.total_score.value = progress.total_score != null ? progress.total_score : 0;
+                            form.word_score.value = progress.word_score != null ? progress.word_score : 0;
+                            form.video_score.value = progress.video_score != null ? progress.video_score : 0;
+                            form.level.value = progress.level != null ? progress.level : 1;
+                        } else {
+                            // Xử lý lỗi không tìm thấy
+                            document.getElementById('edit-student-progress-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-student-progress-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(`/student-progress/${progressId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-student-progress-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-student-progress-form').style.display = 'none';
+                                        document.getElementById('edit-student-progress-form-message').innerText = '';
+                                        showData('student_progress');
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-student-progress-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-student-progress-form-message').innerText = 'Lỗi kết nối!';
                             });
                         }
                     });
@@ -221,5 +276,8 @@
         @include('popup.add-student-form')
         @include('popup.edit-student-form')
         @include('popup.delete-student-form')
+
+        {{-- Include các popup Student Progress --}}
+        @include('popup.edit-student-progress-form')
     </body>
 </html>

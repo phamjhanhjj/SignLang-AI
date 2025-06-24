@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StudentController;
 
 //Chuyển hướng sang dashboard
 Route::get('/', function () {
@@ -14,7 +15,12 @@ Route::get('/dashboard/tables', [DashboardController::class, 'getTables']);
 Route::get('/dashboard/data/{table}', [DashboardController::class, 'getTableData']);
 
 //Route cho student
-Route::get('/student/{id}', [App\Http\Controllers\StudentController::class, 'show'])->name('student.show');
-Route::post('/student', [App\Http\Controllers\StudentController::class, 'store'])->name('student.store');
-Route::put('/student/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('student.update');
-Route::delete('/student/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('student.destroy');
+Route::get('/student/{id}', [StudentController::class, 'show'])->name('student.show');
+Route::post('/student', [StudentController::class, 'store'])->name('student.store');
+Route::put('/student/{id}', [StudentController::class, 'update'])->name('student.update');
+Route::delete('/student/{id}', [StudentController::class, 'destroy'])->name('student.destroy');
+
+//Route cho student progress
+use App\Http\Controllers\StudentProgressController;
+Route::get('/student-progress/{student_id}', [StudentProgressController::class, 'show'])->name('student-progress.show');
+Route::put('/student-progress/{student_id}', [StudentProgressController::class, 'update'])->name('student-progress.update');

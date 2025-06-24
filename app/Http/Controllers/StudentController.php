@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\StudentProgress;
 class StudentController extends Controller
 {
     //
@@ -26,9 +27,14 @@ class StudentController extends Controller
 
         $validated['password'] = bcrypt($validated['password']);
 
-        Student::create($validated);
+        $student = Student::create($validated);
 
-        return response()->json(['success' => true]);
+        // Tạo StudentProgress tự động khi tạo Student
+        // StudentProgress::create([
+        //     'student_id' => $student->student_id,
+
+        // ]);
+        return response()->json(['success' => true, 'data' => $student]);
     }
 
     // Cập nhật thông tin sinh viên
