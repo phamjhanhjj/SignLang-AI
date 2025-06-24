@@ -3,6 +3,19 @@
     <head>
         <title>Dashboard</title>
         <style>
+            .box {
+                display: inline-block;
+                margin: 10px;
+                padding: 10px 20px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                background: #f5f5f5;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .box:hover {
+                background: #e0e0e0;
+            }
         </style>
     </head>
 
@@ -80,7 +93,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                document.getElementById('student-form-message').innerText = 'Thêm Student thành công|';
+                                document.getElementById('student-form-message').innerText = 'Thêm Student thành công!';
                                 form.reset();
                                 setTimeout(() => {
                                 document.getElementById('add-student-form').style.display = 'none';
@@ -97,8 +110,116 @@
                     }
                 }
             })
+            window.onload = loadAllTables; // Tải danh sách bảng khi trang được tải
+
+            function editData(table, id) {
+                switch(table) {
+                    case 'student':
+                        showEditStudentForm(id);
+                        break;
+                    default:
+                        alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
+                        break;
+                }
+            }
+
+            // Hiển thị form sửa Student
+            function showEditStudentForm(studentId) {
+                // Lấy thông tin sinh viên từ server
+                fetch(`/student/${studentId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-student-form').style.display = 'block';
+                        const form = document.getElementById('update-student-form');
+                        form.student_id.value = data.student_id;
+                        form.email_address.value = data.email_address;
+                        form.password.value = '';
+                        form.username.value = data.username;
+                        form.age.value = data.age;
+                        form.date_of_birth.value = data.date_of_birth;
+                        form.gender.value = data.gender;
+                        document.getElementById('edit-student-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(`/student/${studentId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-student-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-student-form').style.display = 'none';
+                                        document.getElementById('edit-student-form-message').innerText = '';
+                                        showData('student');
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-student-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-student-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
+            //Xóa dữ liệu
+            let deleteTable = '';
+            let deleteId = '';
+            function deleteData(table, id) {
+                switch(table) {
+                    case 'student':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-student-form').style.display = 'block';
+                        document.getElementById('delete-student-form-message').innerText = '';
+                        break;
+                    default:
+                        alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
+                        break;
+                }
+            }
+
+            function closeDeleteStudentPopup() {
+                document.getElementById('delete-student-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            function confirmDeleteStudent() {
+                fetch(`/student/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteStudentPopup();
+                    } else {
+                        document.getElementById('delete-student-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-student-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
 
+        {{-- Include các popup Student --}}
         @include('popup.add-student-form')
+        @include('popup.edit-student-form')
+        @include('popup.delete-student-form')
     </body>
 </html>

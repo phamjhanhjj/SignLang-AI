@@ -24,16 +24,27 @@ class DashboardController extends Controller
     //Lấy dữ liệu của một bảng cụ thể
     public function getTableData($tableName) {
         $data = DB::table($tableName)->get();
+        if ($data->isEmpty()) {
+            return '<p>Không có dữ liệu.</p>';
+        }
+        $columns = array_keys((array)$data[0]);
         $html = '<table border="1" cellpadding="5"><tr>';
-        foreach (array_keys((array)$data[0]) as $col) {
+        foreach ($columns as $col) {
             $html .= "<th>$col</th>";
         }
-        $html .= '</tr>';
+        $html .= '<th>Actions</th></tr>';
+
         foreach ($data as $row) {
+            $rowArr = (array)$row;
+            $id = $rowArr[$columns[0]];
             $html .= '<tr>';
-            foreach ((array)$row as $value) {
-                $html .= "<td>$value</td>";
+            foreach ($columns as $col) {
+                $html .= "<td>{$rowArr[$col]}</td>";
             }
+            $html .= "<td>
+                <button onclick=\"editData('{$tableName}', '{$id}')\">Sửa</button>
+                <button onclick=\"deleteData('{$tableName}', '{$id}')\">Xóa</button>
+            </td>";
             $html .= '</tr>';
         }
         $html .= '</table>';
