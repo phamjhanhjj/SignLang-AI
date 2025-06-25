@@ -332,18 +332,26 @@
                         document.getElementById('delete-student-form').style.display = 'block';
                         document.getElementById('delete-student-form-message').innerText = '';
                         break;
+                    case 'course':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-course-form').style.display = 'block';
+                        document.getElementById('delete-course-form-message').innerText = '';
+                        break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
                 }
             }
 
+            // Đóng popup xóa Student
             function closeDeleteStudentPopup() {
                 document.getElementById('delete-student-form').style.display = 'none';
                 deleteTable = '';
                 deleteId = '';
             }
 
+            // Xác nhận xóa Student
             function confirmDeleteStudent() {
                 fetch(`/student/${deleteId}`, {
                     method: 'POST',
@@ -365,6 +373,37 @@
                     document.getElementById('delete-student-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+
+            // Đóng popup xóa Course
+            function closeDeleteCoursePopup() {
+                document.getElementById('delete-course-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Course
+            function confirmDeleteCourse() {
+                fetch(`/course/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteCoursePopup();
+                    } else {
+                        document.getElementById('delete-course-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-course-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
+
         </script>
 
         {{-- Include các popup Student --}}
@@ -378,5 +417,6 @@
         {{-- Include các popup Course --}}
         @include('popup.add-course-form')
         @include('popup.edit-course-form')
+        @include('popup.delete-course-form')
     </body>
 </html>
