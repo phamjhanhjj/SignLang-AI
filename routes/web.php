@@ -24,3 +24,11 @@ Route::delete('/student/{id}', [StudentController::class, 'destroy'])->name('stu
 use App\Http\Controllers\StudentProgressController;
 Route::get('/student-progress/{student_id}', [StudentProgressController::class, 'show'])->name('student-progress.show');
 Route::put('/student-progress/{student_id}', [StudentProgressController::class, 'update'])->name('student-progress.update');
+
+
+//Route cho course
+use App\Http\Controllers\CourseController;
+Route::get('/course/{id}', [CourseController::class, 'show'])->name('course.show');
+Route::post('/course', [CourseController::class, 'store'])->name('course.store');
+Route::put('/course/{id}', [CourseController::class, 'update'])->name('course.update');
+Route::delete('/course/{id}', [CourseController::class, 'destroy'])->name('course.destroy');

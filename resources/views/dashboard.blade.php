@@ -64,6 +64,9 @@
                     case 'student':
                         showCreateStudentForm();
                         break;
+                    case 'course':
+                        showCreateCourseForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -112,6 +115,46 @@
             })
             window.onload = loadAllTables; // Tải danh sách bảng khi trang được tải
 
+            // Hiển thị form thêm Course
+            function showCreateCourseForm() {
+                document.getElementById('add-course-form').style.display = 'block';
+            }
+
+            // Gửi form thêm Course
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-course-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/course', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('course-form-message').innerText = 'Thêm Course thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-course-form').style.display = 'none';
+                                    document.getElementById('course-form-message').innerText = '';
+                                    showData('course');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('course-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('course-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -119,6 +162,9 @@
                         break;
                     case 'student_progress':
                         showEditStudentProgressForm(id);
+                        break;
+                    case 'course':
+                        showEditCourseForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -226,6 +272,55 @@
                     });
             }
 
+            // Hiển thị form sửa Course
+            function showEditCourseForm(courseId) {
+                // Lấy thông tin khóa học từ server
+                fetch(`/course/${courseId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-course-form').style.display = 'block';
+                        const form = document.getElementById('update-course-form');
+                        if (data.success && data.data) {
+                            const course = data.data;
+                            form.course_id.value = course.course_id;
+                            form.nation.value = course.nation;
+                            form.total_topic.value = course.total_topic;
+                        } else {
+                            document.getElementById('edit-course-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-course-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(`/course/${courseId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-course-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-course-form').style.display = 'none';
+                                        document.getElementById('edit-course-form-message').innerText = '';
+                                        showData('course');
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-course-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-course-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -279,5 +374,9 @@
 
         {{-- Include các popup Student Progress --}}
         @include('popup.edit-student-progress-form')
+
+        {{-- Include các popup Course --}}
+        @include('popup.add-course-form')
+        @include('popup.edit-course-form')
     </body>
 </html>
