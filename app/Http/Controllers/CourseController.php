@@ -6,7 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 class CourseController extends Controller
 {
-    //Hiển thị
+    //Hiển thị danh sách course
+    public function index() {
+        $courses = Course::all();
+        return response()->json(['success' => true, 'data' => $courses]);
+    }
+    //Hiển thị course theo id
     public function show($id){
         $course = Course::where('course_id', $id)->first();
         if (!$course) {

@@ -67,6 +67,9 @@
                     case 'course':
                         showCreateCourseForm();
                         break;
+                    case 'topic':
+                        showCreateTopicForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -155,6 +158,57 @@
                 }
             })
 
+            // Hiển thị form thêm Topic
+            function showCreateTopicForm() {
+                document.getElementById('add-topic-form').style.display = 'block';
+                // Lấy danh sách khóa học để hiển thị trong dropdown
+                fetch('/courses')
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('topic-course-select');
+            select.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+            if (data.success && data.data) {
+                data.data.forEach(course => {
+                    select.innerHTML += `<option value="${course.course_id}">${course.nation} (${course.course_id})</option>`;
+                });
+            }
+        });
+            }
+            // Gửi form thêm Topic
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-topic-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/topic', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('topic-form-message').innerText = 'Thêm Topic thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-topic-form').style.display = 'none';
+                                    document.getElementById('topic-form-message').innerText = '';
+                                    showData('topic');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('topic-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('topic-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -165,6 +219,9 @@
                         break;
                     case 'course':
                         showEditCourseForm(id);
+                        break;
+                    case 'topic':
+                        showEditTopicForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -320,6 +377,67 @@
                         }
                     });
             }
+            // Hiển thị form sửa Topic
+            function showEditTopicForm(topicId) {
+                // Lấy thông tin topic từ server
+                fetch(`/topic/${topicId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-topic-form').style.display = 'block';
+                        const form = document.getElementById('update-topic-form');
+                        if (data.success && data.data) {
+                            const topic = data.data;
+                            // Lấy danh sách khóa học để hiển thị trong dropdown
+                            fetch('/courses')
+                                .then(res => res.json())
+                                .then(coursesData => {
+                                    const select = document.getElementById('edit-topic-course-select');
+                                    select.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+                                    if (coursesData.success && coursesData.data) {
+                                        coursesData.data.forEach(course => {
+                                            select.innerHTML += `<option value="${course.course_id}" ${course.course_id === topic.course_id ? 'selected' : ''}>${course.nation} (${course.course_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.topic_id.value = topic.topic_id;
+                            form.name.value = topic.name;
+                            form.level.value = topic.level;
+                            form.number_of_word.value = topic.number_of_word;
+                        } else {
+                            document.getElementById('edit-topic-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-topic-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            fetch(`/topic/${topicId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-topic-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-topic-form').style.display = 'none';
+                                        document.getElementById('edit-topic-form-message').innerText = '';
+                                        showData('topic');
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-topic-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-topic-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
 
             //Xóa dữ liệu
             let deleteTable = '';
@@ -337,6 +455,12 @@
                         deleteId = id;
                         document.getElementById('delete-course-form').style.display = 'block';
                         document.getElementById('delete-course-form-message').innerText = '';
+                        break;
+                    case 'topic':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-topic-form').style.display = 'block';
+                        document.getElementById('delete-topic-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -404,6 +528,36 @@
                 });
             }
 
+            // Đóng popup xóa Topic
+            function closeDeleteTopicPopup() {
+                document.getElementById('delete-topic-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Topic
+            function confirmDeleteTopic() {
+                fetch(`/topic/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteTopicPopup();
+                    } else {
+                        document.getElementById('delete-topic-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-topic-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
+
         </script>
 
         {{-- Include các popup Student --}}
@@ -418,5 +572,11 @@
         @include('popup.add-course-form')
         @include('popup.edit-course-form')
         @include('popup.delete-course-form')
+
+        {{-- Include các popup Topic --}}
+        @include('popup.add-topic-form')
+        @include('popup.edit-topic-form')
+        @include('popup.delete-topic-form')
+
     </body>
 </html>
