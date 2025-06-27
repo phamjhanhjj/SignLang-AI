@@ -36,7 +36,16 @@ Route::delete('/course/{id}', [CourseController::class, 'destroy'])->name('cours
 
 //Route cho topic
 use App\Http\Controllers\TopicController;
+Route::get('/topics', [TopicController::class, 'index'])->name('topic.index');
 Route::get('/topic/{id}', [TopicController::class, 'show'])->name('topic.show');
 Route::post('/topic', [TopicController::class, 'store'])->name('topic.store');
 Route::put('/topic/{id}', [TopicController::class, 'update'])->name('topic.update');
 Route::delete('/topic/{id}', [TopicController::class, 'destroy'])->name('topic.destroy');
+
+//Route cho word
+use App\Http\Controllers\WordController;
+Route::get('/words', [WordController::class, 'index'])->name('word.index');
+Route::get('/word/{id}', [WordController::class, 'show'])->name('word.show');
+Route::post('/word', [WordController::class, 'store'])->name('word.store');
+Route::put('/word/{id}', [WordController::class, 'update'])->name('word.update');
+Route::delete('/word/{id}', [WordController::class, 'destroy'])->name('word.destroy');

@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Topic;
 class TopicController extends Controller
 {
+    //Hiển thị danh sách topic
+    public function index(){
+        $topics = Topic::all();
+        return response()->json(['success' => true, 'data' => $topics]);
+    }
     //Thêm mới topic
     public function store(Request $request){
         $validated = $request->validate([
