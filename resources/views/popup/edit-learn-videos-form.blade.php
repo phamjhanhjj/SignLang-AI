@@ -1,12 +1,13 @@
+<!-- filepath: d:\Đồ án liên ngành\SignLang-AI\resources\views\popup\edit-learn-videos-form.blade.php -->
 <style>
-    #edit-course-form {
+    #edit-learn-videos-form {
         display: none;
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
         background: rgba(0,0,0,0.3);
         z-index: 1000;
     }
-    .student-form-modal {
+    .learn-videos-form-modal {
         background: #fff;
         margin: 80px auto;
         padding: 30px 32px 20px 32px;
@@ -34,18 +35,19 @@
     .close-btn:hover {
         color: #e74c3c;
     }
-    #edit-course-form-message {
+    #edit-learn-videos-form-message {
         color: green;
         margin-top: 10px;
         text-align: center;
         font-weight: 500;
     }
-    .student-form-modal label {
+    .learn-videos-form-modal label {
         display: block;
         margin-top: 10px;
         font-weight: 500;
     }
-    .student-form-modal input {
+    .learn-videos-form-modal input,
+    .learn-videos-form-modal select {
         width: 100%;
         padding: 7px 10px;
         margin-top: 4px;
@@ -54,7 +56,7 @@
         font-size: 1rem;
         margin-bottom: 2px;
     }
-    .student-form-modal button[type="submit"] {
+    .learn-videos-form-modal button[type="submit"] {
         width: 100%;
         margin-top: 18px;
         padding: 8px 0;
@@ -67,24 +69,27 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .student-form-modal button[type="submit"]:hover {
+    .learn-videos-form-modal button[type="submit"]:hover {
         background: #1976d2;
     }
 </style>
 
-<div id="edit-course-form">
-    <div class="course-form-modal">
-        <button class="close-btn" onclick="document.getElementById('edit-course-form').style.display='none'">&times;</button>
-        <h2>Sửa thông tin Course</h2>
-        <form id="update-course-form">
-            <label>Course ID:</label>
-            <input type="text" name="course_id" readonly>
-            <label>Nation</label>
-            <input type="text" name="nation" required>
-            <label>Total topic:</label>
-            <input type="number" name="total_topic" required min="0">
+<div id="edit-learn-videos-form">
+    <div class="learn-videos-form-modal">
+        <button class="close-btn" onclick="document.getElementById('edit-learn-videos-form').style.display='none'">&times;</button>
+        <h2>Sửa Word</h2>
+        <form id="update-learn-videos-form">
+            <label>Learn Video ID:</label>
+            <input type="text" name="learn_video_id" readonly>
+            <label>Topic:</label>
+            <select name="word_id" id="edit-learn-videos-word-select" required>
+                <option value="">-- Chọn từ --</option>
+                <!-- Option sẽ được render động bằng JS -->
+            </select>
+            <label>Video URL:</label>
+            <input type="text" name="video_url" required>
             <button type="submit">Cập nhật</button>
         </form>
-        <div id="edit-course-form-message"></div>
+        <div id="edit-learn-videos-form-message"></div>
     </div>
 </div>

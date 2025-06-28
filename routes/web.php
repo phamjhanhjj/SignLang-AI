@@ -49,3 +49,11 @@ Route::get('/word/{id}', [WordController::class, 'show'])->name('word.show');
 Route::post('/word', [WordController::class, 'store'])->name('word.store');
 Route::put('/word/{id}', [WordController::class, 'update'])->name('word.update');
 Route::delete('/word/{id}', [WordController::class, 'destroy'])->name('word.destroy');
+
+//Route cho learn videos
+use App\Http\Controllers\LearnVideosController;
+Route::get('/learn-videos', [LearnVideosController::class, 'index'])->name('learn-video.index');
+Route::get('/learn-video/{id}', [LearnVideosController::class, 'show'])->name('learn-video.show');
+Route::post('/learn-video', [LearnVideosController::class, 'store'])->name('learn-video.store');
+Route::put('/learn-video/{id}', [LearnVideosController::class, 'update'])->name('learn-video.update');
+Route::delete('/learn-video/{id}', [LearnVideosController::class, 'destroy'])->name('learn-video.destroy');
