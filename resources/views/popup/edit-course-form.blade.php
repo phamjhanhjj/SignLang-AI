@@ -6,7 +6,7 @@
         background: rgba(0,0,0,0.3);
         z-index: 1000;
     }
-    .student-form-modal {
+    .course-form-modal {
         background: #fff;
         margin: 80px auto;
         padding: 30px 32px 20px 32px;
@@ -40,12 +40,12 @@
         text-align: center;
         font-weight: 500;
     }
-    .student-form-modal label {
+    .course-form-modal label {
         display: block;
         margin-top: 10px;
         font-weight: 500;
     }
-    .student-form-modal input {
+    .course-form-modal input {
         width: 100%;
         padding: 7px 10px;
         margin-top: 4px;
@@ -54,7 +54,7 @@
         font-size: 1rem;
         margin-bottom: 2px;
     }
-    .student-form-modal button[type="submit"] {
+    .course-form-modal button[type="submit"] {
         width: 100%;
         margin-top: 18px;
         padding: 8px 0;
@@ -67,7 +67,7 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .student-form-modal button[type="submit"]:hover {
+    .course-form-modal button[type="submit"]:hover {
         background: #1976d2;
     }
 </style>

@@ -57,3 +57,11 @@ Route::get('/learn-video/{id}', [LearnVideosController::class, 'show'])->name('l
 Route::post('/learn-video', [LearnVideosController::class, 'store'])->name('learn-video.store');
 Route::put('/learn-video/{id}', [LearnVideosController::class, 'update'])->name('learn-video.update');
 Route::delete('/learn-video/{id}', [LearnVideosController::class, 'destroy'])->name('learn-video.destroy');
+
+//Route cho practise video
+use App\Http\Controllers\PractiseVideoController;
+Route::get('/practise-videos', [PractiseVideoController::class, 'index'])->name('practise-video.index');
+Route::get('/practise-video/{id}', [PractiseVideoController::class, 'show'])->name('practise-video.show');
+Route::post('/practise-video', [PractiseVideoController::class, 'store'])->name('practise-video.store');
+Route::put('/practise-video/{id}', [PractiseVideoController::class, 'update'])->name('practise-video.update');
+Route::delete('/practise-video/{id}', [PractiseVideoController::class, 'destroy'])->name('practise-video.destroy');

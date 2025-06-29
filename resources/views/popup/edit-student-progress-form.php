@@ -6,7 +6,7 @@
         background: rgba(0,0,0,0.3);
         z-index: 1000;
     }
-    .student-form-modal {
+    .student-progress-form-modal {
         background: #fff;
         margin: 80px auto;
         padding: 30px 32px 20px 32px;
@@ -40,12 +40,12 @@
         text-align: center;
         font-weight: 500;
     }
-    .student-form-modal label {
+    .student-progress-form-modal label {
         display: block;
         margin-top: 10px;
         font-weight: 500;
     }
-    .student-form-modal input {
+    .student-progress-form-modal input {
         width: 100%;
         padding: 7px 10px;
         margin-top: 4px;
@@ -54,7 +54,7 @@
         font-size: 1rem;
         margin-bottom: 2px;
     }
-    .student-form-modal button[type="submit"] {
+    .student-progress-form-modal button[type="submit"] {
         width: 100%;
         margin-top: 18px;
         padding: 8px 0;
@@ -67,13 +67,13 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .student-form-modal button[type="submit"]:hover {
+    .student-progress-form-modal button[type="submit"]:hover {
         background: #1976d2;
     }
 </style>
 
 <div id="edit-student-progress-form">
-    <div class="student-form-modal">
+    <div class="student-progress-form-modal">
         <button class="close-btn" onclick="document.getElementById('edit-student-progress-form').style.display='none'">&times;</button>
         <h2>Sửa thông tin Student Progress</h2>
         <form id="update-student-progress-form">

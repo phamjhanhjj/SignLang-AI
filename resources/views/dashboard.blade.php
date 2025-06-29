@@ -58,6 +58,10 @@
                         document.getElementById('data-table').innerHTML = crudHtml + html;
                     })
             }
+            // function hideAllPopups() {
+            //     const popups = document.querySelectorAll('[id$="-form"]');
+            //     popups.forEach(popup => popup.style.display = 'none');
+            // }
 
             // Hàm thêm dữ liệu vào bảng
             function addData(table) {
@@ -77,6 +81,9 @@
                     case 'learn_videos':
                         showCreateLearnVideosForm();
                         break;
+                    case 'practise_video':
+                        showCreatePractiseVideoForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -85,6 +92,7 @@
 
             // Hiển thị form thêm Student
             function showCreateStudentForm() {
+                // hideAllPopups();
                 document.getElementById('add-student-form').style.display = 'block';
             }
 
@@ -270,75 +278,108 @@
 
             // Hiển thị form thêm Learn Videos
             function showCreateLearnVideosForm() {
-                const popup = document.getElementById('add-learn-videos-form');
-                if (!popup) return console.error('Không tìm thấy form #add-learn-videos-form');
-
-                popup.style.display = 'block';
-
-                // Lấy danh sách từ (words) để hiển thị trong dropdown
+                document.getElementById('add-learn-videos-form').style.display = 'block';
+                // Lấy danh sách từ để hiển thị trong dropdown
                 fetch('/words')
                     .then(res => res.json())
                     .then(data => {
                         const select = document.getElementById('learn-videos-word-select');
-                        if (!select) return;
-
                         select.innerHTML = '<option value="">-- Chọn từ --</option>';
-                        if (data.success && Array.isArray(data.data)) {
+                        if (data.success && data.data) {
                             data.data.forEach(word => {
                                 select.innerHTML += `<option value="${word.word_id}">${word.word} (${word.word_id})</option>`;
                             });
                         }
-                    })
-                    .catch(err => {
-                        console.error('Lỗi khi tải danh sách từ:', err);
                     });
-
-                console.log('Đã hiển thị form tạo Learn Videos');
             }
 
-            // Gửi form thêm Learn Videos khi DOM đã sẵn sàng
+            // Gửi form thêm Learn Videos
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('create-learn-videos-form');
-                if (!form) return;
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/learn-video', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('learn-videos-form-message').innerText = 'Thêm Learn Video thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-learn-videos-form').style.display = 'none';
+                                    document.getElementById('learn-videos-form-message').innerText = '';
+                                    showData('learn_videos');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('learn-videos-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('learn-videos-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
 
-                form.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Ngăn chặn reload
-
-                    const formData = new FormData(form);
-
-                    fetch('/learn-video', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
+            // Hiển thị form thêm Practise Video
+            function showCreatePractiseVideoForm() {
+                document.getElementById('add-practise-video-form').style.display = 'block';
+                // Lấy danh sách khóa học để hiển thị trong dropdown
+                fetch('/courses')
+                    .then(res => res.json())
                     .then(data => {
-                        const messageEl = document.getElementById('learn-videos-form-message');
-                        if (!messageEl) return;
-
-                        if (data.success) {
-                            messageEl.innerText = 'Thêm Learn Video thành công!';
-                            form.reset();
-
-                            setTimeout(() => {
-                                document.getElementById('add-learn-videos-form').style.display = 'none';
-                                messageEl.innerText = '';
-                                if (typeof showData === 'function') {
-                                    showData('learn_videos'); // Tùy theo tên bảng của bạn
-                                }
-                            }, 1000);
-                        } else {
-                            messageEl.innerText = 'Lỗi: ' + (data.error || 'Không rõ nguyên nhân');
+                        const select = document.getElementById('practise-video-course-select');
+                        select.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(course => {
+                                select.innerHTML += `<option value="${course.course_id}">${course.nation} (${course.course_id})</option>`;
+                            });
                         }
-                    })
-                    .catch(() => {
-                        const messageEl = document.getElementById('learn-videos-form-message');
-                        if (messageEl) messageEl.innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
                     });
-                });
-            });
+            }
+
+            // Gửi form thêm Practise Video
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-practise-video-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/practise-video', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('practise-video-form-message').innerText = 'Thêm Practise Video thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-practise-video-form').style.display = 'none';
+                                    document.getElementById('practise-video-form-message').innerText = '';
+                                    showData('practise_video');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('practise-video-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('practise-video-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -358,6 +399,9 @@
                         break;
                     case 'learn_videos':
                         showEditLearnVideosForm(id);
+                        break;
+                    case 'practise_video':
+                        showEditPractiseVideoForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -698,6 +742,69 @@
                     });
             }
 
+            // Hiển thị form sửa Practise Video
+            function showEditPractiseVideoForm(videoId) {
+                // Lấy thông tin video từ server
+                fetch(`/practise-video/${videoId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-practise-video-form').style.display = 'block';
+                        const form = document.getElementById('update-practise-video-form');
+                        if (data.success && data.data) {
+                            const video = data.data;
+                            // Lấy danh sách khóa học để hiển thị trong dropdown
+                            fetch('/courses')
+                                .then(res => res.json())
+                                .then(coursesData => {
+                                    const select = document.getElementById('edit-practise-video-course-select');
+                                    select.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+                                    if (coursesData.success && coursesData.data) {
+                                        coursesData.data.forEach(course => {
+                                            select.innerHTML += `<option value="${course.course_id}" ${course.course_id === video.course_id ? 'selected' : ''}>${course.nation} (${course.course_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.practise_video_id.value = video.practise_video_id;
+                            form.course_id.value = video.course_id;
+                            form.video_link.value = video.video_link;
+                            form.subtitle.value = video.subtitle;
+                            form.score.value = video.score;
+                        } else {
+                            document.getElementById('edit-practise-video-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-practise-video-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/practise-video/${videoId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-practise-video-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-practise-video-form').style.display = 'none';
+                                        document.getElementById('edit-practise-video-form-message').innerText = '';
+                                        showData('practise_video'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-practise-video-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-practise-video-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -889,34 +996,41 @@
                 });
             }
         </script>
+
+        {{-- Include các popup Practise Video --}}
+        @include('popup.add-practise-video-form')
+        @include('popup.edit-practise-video-form')
+        @include('popup.delete-practise-video-form')
+
         {{--Include các popup Learn Video--}}
         @include('popup.add-learn-videos-form')
         @include('popup.edit-learn-videos-form')
         @include('popup.delete-learn-videos-form')
-
-        {{-- Include các popup Student --}}
-        @include('popup.add-student-form')
-        @include('popup.edit-student-form')
-        @include('popup.delete-student-form')
-
-        {{-- Include các popup Student Progress --}}
-        @include('popup.edit-student-progress-form')
-
-        {{-- Include các popup Course --}}
-        @include('popup.add-course-form')
-        @include('popup.edit-course-form')
-        @include('popup.delete-course-form')
-
-        {{-- Include các popup Topic --}}
-        @include('popup.add-topic-form')
-        @include('popup.edit-topic-form')
-        @include('popup.delete-topic-form')
 
         {{-- Include các popup Word --}}
         @include('popup.add-word-form')
         @include('popup.edit-word-form')
         @include('popup.delete-word-form')
 
-    </body>
+        {{-- Include các popup Topic --}}
+        @include('popup.add-topic-form')
+        @include('popup.edit-topic-form')
+        @include('popup.delete-topic-form')
+
+        {{-- Include các popup Course --}}
+        @include('popup.add-course-form')
+        @include('popup.edit-course-form')
+        @include('popup.delete-course-form')
+
+        {{-- Include các popup Student Progress --}}
+        {{-- @include('popup.add-student-progress-form') --}}
+        @include('popup.edit-student-progress-form')
+        {{-- @include('popup.delete-student-progress-form') --}}
+
+        {{-- Include các popup Student --}}
+        @include('popup.add-student-form')
+        @include('popup.edit-student-form')
+        @include('popup.delete-student-form')
+
     </body>
 </html>

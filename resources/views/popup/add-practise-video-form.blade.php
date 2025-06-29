@@ -1,13 +1,12 @@
-<!-- filepath: resources/views/popup/add-learn-videos-form.blade.php -->
 <style>
-    #add-learn-videos-form {
+    #add-practise-video-form {
         display: none;
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.3);
+        background: rgba(0,0,0,0.5);
         z-index: 1000;
     }
-    .learn-videos-form-modal {
+    .practise-video-form-modal {
         background: #fff;
         margin: 80px auto;
         padding: 30px 32px 20px 32px;
@@ -21,21 +20,22 @@
         from {transform: translateY(-40px); opacity: 0;}
         to {transform: translateY(0); opacity: 1;}
     }
-    .learn-videos-form-modal h2 {
+    .practise-video-form-modal h2 {
         margin-top: 0;
         margin-bottom: 18px;
         font-size: 1.4rem;
         text-align: center;
         color: #333;
     }
-    .learn-videos-form-modal label {
+    .practise-video-form-modal label {
         display: block;
         margin-bottom: 4px;
         font-weight: 500;
         color: #444;
     }
-    .learn-videos-form-modal input,
-    .learn-videos-form-modal select {
+    .practise-video-form-modal input,
+    .practise-video-form-modal select,
+    .practise-video-form-modal textarea {
         width: 100%;
         padding: 8px 10px;
         margin-bottom: 14px;
@@ -44,13 +44,19 @@
         font-size: 1rem;
         background: #fafbfc;
         transition: border 0.2s;
+        box-sizing: border-box;
     }
-    .learn-videos-form-modal input:focus,
-    .learn-videos-form-modal select:focus {
+    .practise-video-form-modal input:focus,
+    .practise-video-form-modal select:focus,
+    .practise-video-form-modal textarea:focus {
         border: 1.5px solid #007bff;
         outline: none;
     }
-    .learn-videos-form-modal button[type="submit"] {
+    .practise-video-form-modal textarea {
+        height: 80px;
+        resize: vertical;
+    }
+    .practise-video-form-modal button[type="submit"] {
         width: 100%;
         background: #007bff;
         color: #fff;
@@ -62,7 +68,7 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .learn-videos-form-modal button[type="submit"]:hover {
+    .practise-video-form-modal button[type="submit"]:hover {
         background: #0056b3;
     }
     .close-btn {
@@ -79,7 +85,7 @@
     .close-btn:hover {
         color: #e74c3c;
     }
-    #learn-videos-form-message {
+    #practise-video-form-message {
         color: green;
         margin-top: 10px;
         text-align: center;
@@ -87,20 +93,28 @@
     }
 </style>
 
-<div id="add-learn-videos-form">
-    <div class="learn-videos-form-modal">
-        <button class="close-btn" onclick="document.getElementById('add-learn-videos-form').style.display='none'">&times;</button>
-        <h2>Thêm Learn Video</h2>
-        <form id="create-learn-videos-form">
-            <label>Chọn từ:</label>
-            <select name="word_id" id="learn-videos-word-select" required>
-                <option value="">-- Chọn từ --</option>
-                <!-- Sẽ được render bằng JS -->
+<div id="add-practise-video-form">
+    <div class="practise-video-form-modal">
+        <button class="close-btn" onclick="document.getElementById('add-practise-video-form').style.display='none'">&times;</button>
+        <h2>Thêm Practise Video</h2>
+        <form id="create-practise-video-form">
+            <label>Khóa học:</label>
+            <select name="course_id" id="practise-video-course-select" required>
+                <option value="">-- Chọn khóa học --</option>
+                <!-- Option sẽ được render động bằng JS -->
             </select>
-            <label>Video URL:</label>
-            <input type="text" name="video_url" required placeholder="Nhập URL video">
+
+            <label>Link Video:</label>
+            <input type="url" name="video_link" required placeholder="https://example.com/video.mp4">
+
+            <label>Phụ đề (JSON):</label>
+            <textarea name="subtitle" required placeholder='{"en": "English subtitle", "vi": "Phụ đề tiếng Việt"}'></textarea>
+
+            <label>Điểm:</label>
+            <input type="number" name="score" required min="0" value="0">
+
             <button type="submit">Lưu</button>
         </form>
-        <div id="learn-videos-form-message"></div>
+        <div id="practise-video-form-message"></div>
     </div>
 </div>
