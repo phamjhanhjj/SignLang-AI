@@ -82,3 +82,11 @@ Route::get('/enrolment/{id}', [EnrolmentController::class, 'show'])->name('enrol
 Route::post('/enrolment', [EnrolmentController::class, 'store'])->name('enrolment.store');
 Route::put('/enrolment/{id}', [EnrolmentController::class, 'update'])->name('enrolment.update');
 Route::delete('/enrolment/{id}', [EnrolmentController::class, 'destroy'])->name('enrolment.destroy');
+
+//Route cho student practise video record
+use App\Http\Controllers\StudentPractiseVideoRecordController;
+Route::get('/student-practise-video-records', [StudentPractiseVideoRecordController::class, 'index'])->name('student-practise-video-record.index');
+Route::get('/student-practise-video-record/{id}', [StudentPractiseVideoRecordController::class, 'show'])->name('student-practise-video-record.show');
+Route::post('/student-practise-video-record', [StudentPractiseVideoRecordController::class, 'store'])->name('student-practise-video-record.store');
+Route::put('/student-practise-video-record/{id}', [StudentPractiseVideoRecordController::class, 'update'])->name('student-practise-video-record.update');
+Route::delete('/student-practise-video-record/{id}', [StudentPractiseVideoRecordController::class, 'destroy'])->name('student-practise-video-record.destroy');

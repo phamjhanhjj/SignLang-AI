@@ -90,6 +90,9 @@
                     case 'enrolment':
                         showCreateEnrolmentForm();
                         break;
+                    case 'student_practise_video_record':
+                        showCreateStudentPractiseVideoRecordForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -514,6 +517,71 @@
                     }
                 }
             })
+            //Hiển thị form thêm Student Practise Video Record
+            function showCreateStudentPractiseVideoRecordForm() {
+                document.getElementById('add-student-practise-video-record-form').style.display = 'block';
+                // Lấy danh sách sinh viên để hiển thị trong dropdown
+                fetch('/students')
+                    .then(res => res.json())
+                    .then(data => {
+                        const studentSelect = document.getElementById('student-practise-video-record-student-select');
+                        studentSelect.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(student => {
+                                studentSelect.innerHTML += `<option value="${student.student_id}">${student.username} (${student.student_id})</option>`;
+                            });
+                        }
+                    });
+                // Lấy danh sách video thực hành để hiển thị trong dropdown
+                fetch('/practise-videos')
+                    .then(res => res.json())
+                    .then(data => {
+                        const videoSelect = document.getElementById('student-practise-video-record-video-select');
+                        videoSelect.innerHTML = '<option value="">-- Chọn video thực hành --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(video => {
+                                videoSelect.innerHTML += `<option value="${video.practise_video_id}">${video.video_link} (${video.practise_video_id})</option>`;
+                            });
+                        }
+                    });
+            }
+
+            // Gửi form thêm Student Practise Video Record
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-student-practise-video-record-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/student-practise-video-record', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('student-practise-video-record-form-message').innerText = 'Thêm Student Practise Video Record thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-student-practise-video-record-form').style.display = 'none';
+                                    document.getElementById('student-practise-video-record-form-message').innerText = '';
+                                    showData('student_practise_video_record');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('student-practise-video-record-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('student-practise-video-record-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
+            // Hàm sửa dữ liệu trong bảng
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -542,6 +610,9 @@
                         break;
                     case 'enrolment':
                         showEditEnrolmentForm(id);
+                        break;
+                    case 'student_practise_video_record':
+                        showEditStudentPractiseVideoRecordForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1053,8 +1124,8 @@
                             form.enrolment_id.value = enrolment.enrolment_id;
                             form.student_id.value = enrolment.student_id;
                             form.course_id.value = enrolment.course_id;
-                            form.enrolment_datetime= enrolment.enrolment_datetime;
-                            form.is_completed = enrolment.is_completed;
+                            form.enrolment_datetime.value= enrolment.enrolment_datetime;
+                            form.is_completed.value = enrolment.is_completed;
                         } else {
                             document.getElementById('edit-enrolment-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
                         }
@@ -1086,6 +1157,82 @@
                             })
                             .catch(() => {
                                 document.getElementById('edit-enrolment-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
+            // Hiển thị form sửa student practise video Record
+            function showEditStudentPractiseVideoRecordForm(recordId) {
+                // Lấy thông tin từ server
+                fetch(`/student-practise-video-record/${recordId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-student-practise-video-record-form').style.display = 'block';
+                        const form = document.getElementById('update-student-practise-video-record-form');
+                        if (data.success && data.data) {
+                            const record = data.data;
+                            // Lấy danh sách sinh viên để hiển thị trong dropdown
+                            fetch('/students')
+                                .then(res => res.json())
+                                .then(studentsData => {
+                                    const select = document.getElementById('edit-student-practise-video-record-student-select');
+                                    select.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                                    if (studentsData.success && studentsData.data) {
+                                        studentsData.data.forEach(student => {
+                                            select.innerHTML += `<option value="${student.student_id}" ${student.student_id === record.student_id ? 'selected' : ''}>${student.username} (${student.student_id})</option>`;
+                                        });
+                                    }
+                                });
+                            // Lấy danh sách video thực hành để hiển thị trong dropdown
+                            fetch('/practise-videos')
+                                .then(res => res.json())
+                                .then(videosData => {
+                                    const videoSelect = document.getElementById('edit-student-practise-video-record-video-select');
+                                    videoSelect.innerHTML = '<option value="">-- Chọn video thực hành --</option>';
+                                    if (videosData.success && videosData.data) {
+                                        videosData.data.forEach(video => {
+                                            videoSelect.innerHTML += `<option value="${video.practise_video_id}" ${video.practise_video_id === record.practise_video_id ? 'selected' : ''}>${video.video_link} (${video.practise_video_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.student_practise_video_record_id.value = record.student_practise_video_record_id;
+                            form.student_id.value = record.student_id;
+                            form.practise_video_id.value = record.practise_video_id;
+                            form.is_learned.value = record.is_learned || 0; // Đảm bảo is_learned luôn có giá trị
+                            form.replay_time.value = record.replay_time || 0; // Đảm bảo replaay_time luôn có giá trị
+                            form.is_mastered.value = record.is_mastered || 0; // Đảm bảo is_mastered luôn có giá trị
+                        } else {
+                            document.getElementById('edit-student-practise-video-record-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-student-practise-video-record-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/student-practise-video-record/${recordId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-student-practise-video-record-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-student-practise-video-record-form').style.display = 'none';
+                                        document.getElementById('edit-student-practise-video-record-form-message').innerText = '';
+                                        showData('student_practise_video_record'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-student-practise-video-record-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-student-practise-video-record-form-message').innerText = 'Lỗi kết nối!';
                             });
                         }
                     });
@@ -1142,6 +1289,12 @@
                         deleteId = id;
                         document.getElementById('delete-enrolment-form').style.display = 'block';
                         document.getElementById('delete-enrolment-form-message').innerText = '';
+                        break;
+                    case 'student_practise_video_record':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-student-practise-video-record-form').style.display = 'block';
+                        document.getElementById('delete-student-practise-video-record-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1387,7 +1540,41 @@
                     document.getElementById('delete-enrolment-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+
+            //Hiển thị form xóa Student Practise Video Record
+            function closeDeleteStudentPractiseVideoRecordPopup() {
+                document.getElementById('delete-student-practise-video-record-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Student Practise Video Record
+            function confirmDeleteStudentPractiseVideoRecord() {
+                fetch(`/student-practise-video-record/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteStudentPractiseVideoRecordPopup();
+                    } else {
+                        document.getElementById('delete-student-practise-video-record-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-student-practise-video-record-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
+        {{-- Include các popup Student practise video record --}}
+        @include('popup.add-student-practise-video-record-form')
+        @include('popup.edit-student-practise-video-record-form')
+        @include('popup.delete-student-practise-video-record-form')
         {{-- Include các popup Enrolment--}}
         @include('popup.add-enrolment-form')
         @include('popup.edit-enrolment-form')
