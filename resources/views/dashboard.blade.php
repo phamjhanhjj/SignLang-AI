@@ -93,6 +93,9 @@
                     case 'student_practise_video_record':
                         showCreateStudentPractiseVideoRecordForm();
                         break;
+                    case 'student_word_record':
+                        showCreateStudentWordRecordForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -581,6 +584,69 @@
                 }
             })
 
+            // Hiển thị form thêm Student Word Record
+            function showCreateStudentWordRecordForm() {
+                document.getElementById('add-student-word-record-form').style.display = 'block';
+                // Lấy danh sách sinh viên để hiển thị trong dropdown
+                fetch('/students')
+                    .then(res => res.json())
+                    .then(data => {
+                        const studentSelect = document.getElementById('student-word-record-student-select');
+                        studentSelect.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(student => {
+                                studentSelect.innerHTML += `<option value="${student.student_id}">${student.username} (${student.student_id})</option>`;
+                            });
+                        }
+                    });
+                // Lấy danh sách từ để hiển thị trong dropdown
+                fetch('/words')
+                    .then(res => res.json())
+                    .then(data => {
+                        const wordSelect = document.getElementById('student-word-record-word-select');
+                        wordSelect.innerHTML = '<option value="">-- Chọn từ --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(word => {
+                                wordSelect.innerHTML += `<option value="${word.word_id}">${word.word} (${word.word_id})</option>`;
+                            });
+                        }
+                    });
+            }
+
+            // Gửi form thêm Student Word Record
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-student-word-record-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/student-word-record', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('student-word-record-form-message').innerText = 'Thêm Student Word Record thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-student-word-record-form').style.display = 'none';
+                                    document.getElementById('student-word-record-form-message').innerText = '';
+                                    showData('student_word_record');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('student-word-record-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('student-word-record-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
             // Hàm sửa dữ liệu trong bảng
             function editData(table, id) {
                 switch(table) {
@@ -613,6 +679,9 @@
                         break;
                     case 'student_practise_video_record':
                         showEditStudentPractiseVideoRecordForm(id);
+                        break;
+                    case 'student_word_record':
+                        showEditStudentWordRecordForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1237,6 +1306,82 @@
                         }
                     });
             }
+
+            // Hiển thị form sửa student word record
+            function showEditStudentWordRecordForm(recordId) {
+                // Lấy thông tin từ server
+                fetch(`/student-word-record/${recordId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-student-word-record-form').style.display = 'block';
+                        const form = document.getElementById('update-student-word-record-form');
+                        if (data.success && data.data) {
+                            const record = data.data;
+                            // Lấy danh sách sinh viên để hiển thị trong dropdown
+                            fetch('/students')
+                                .then(res => res.json())
+                                .then(studentsData => {
+                                    const select = document.getElementById('edit-student-word-record-student-select');
+                                    select.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                                    if (studentsData.success && studentsData.data) {
+                                        studentsData.data.forEach(student => {
+                                            select.innerHTML += `<option value="${student.student_id}" ${student.student_id === record.student_id ? 'selected' : ''}>${student.username} (${student.student_id})</option>`;
+                                        });
+                                    }
+                                });
+                            // Lấy danh sách từ để hiển thị trong dropdown
+                            fetch('/words')
+                                .then(res => res.json())
+                                .then(wordsData => {
+                                    const wordSelect = document.getElementById('edit-student-word-record-word-select');
+                                    wordSelect.innerHTML = '<option value="">-- Chọn từ --</option>';
+                                    if (wordsData.success && wordsData.data) {
+                                        wordsData.data.forEach(word => {
+                                            wordSelect.innerHTML += `<option value="${word.word_id}" ${word.word_id === record.word_id ? 'selected' : ''}>${word.word} (${word.word_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.student_word_record_id.value = record.student_word_record_id;
+                            form.student_id.value = record.student_id;
+                            form.word_id.value = record.word_id;
+                            form.is_learned.value = record.is_learned || 0; // Đảm bảo is_learned luôn có giá trị
+                            form.replay_time.value = record.replay_time || 0; // Đảm bảo replay_time luôn có giá trị
+                            form.is_mastered.value = record.is_mastered || 0; // Đảm bảo is_mastered luôn có giá trị
+                        } else {
+                            document.getElementById('edit-student-word-record-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-student-word-record-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/student-word-record/${recordId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-student-word-record-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-student-word-record-form').style.display = 'none';
+                                        document.getElementById('edit-student-word-record-form-message').innerText = '';
+                                        showData('student_word_record'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-student-word-record-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-student-word-record-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -1295,6 +1440,12 @@
                         deleteId = id;
                         document.getElementById('delete-student-practise-video-record-form').style.display = 'block';
                         document.getElementById('delete-student-practise-video-record-form-message').innerText = '';
+                        break;
+                    case 'student_word_record':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-student-word-record-form').style.display = 'block';
+                        document.getElementById('delete-student-word-record-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1570,7 +1721,40 @@
                     document.getElementById('delete-student-practise-video-record-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+            //Hiển thị form xóa Student Word Record
+            function closeDeleteStudentWordRecordPopup() {
+                document.getElementById('delete-student-word-record-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Student Word Record
+            function confirmDeleteStudentWordRecord() {
+                fetch(`/student-word-record/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteStudentWordRecordPopup();
+                    } else {
+                        document.getElementById('delete-student-word-record-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-student-word-record-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
+        {{--Include các popup student word record--}}
+        @include('popup.add-student-word-record-form')
+        @include('popup.edit-student-word-record-form')
+        @include('popup.delete-student-word-record-form')
         {{-- Include các popup Student practise video record --}}
         @include('popup.add-student-practise-video-record-form')
         @include('popup.edit-student-practise-video-record-form')

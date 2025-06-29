@@ -90,3 +90,11 @@ Route::get('/student-practise-video-record/{id}', [StudentPractiseVideoRecordCon
 Route::post('/student-practise-video-record', [StudentPractiseVideoRecordController::class, 'store'])->name('student-practise-video-record.store');
 Route::put('/student-practise-video-record/{id}', [StudentPractiseVideoRecordController::class, 'update'])->name('student-practise-video-record.update');
 Route::delete('/student-practise-video-record/{id}', [StudentPractiseVideoRecordController::class, 'destroy'])->name('student-practise-video-record.destroy');
+
+//Route cho student word record
+use App\Http\Controllers\StudentWordRecordController;
+Route::get('/student-word-records', [StudentWordRecordController::class, 'index'])->name('student-word-record.index');
+Route::get('/student-word-record/{id}', [StudentWordRecordController::class, 'show'])->name('student-word-record.show');
+Route::post('/student-word-record', [StudentWordRecordController::class, 'store'])->name('student-word-record.store');
+Route::put('/student-word-record/{id}', [StudentWordRecordController::class, 'update'])->name('student-word-record.update');
+Route::delete('/student-word-record/{id}', [StudentWordRecordController::class, 'destroy'])->name('student-word-record.destroy');

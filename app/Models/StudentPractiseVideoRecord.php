@@ -16,7 +16,7 @@ class StudentPractiseVideoRecord extends Model
         'student_id',
         'practise_video_id',
         'is_learned',
-        'replay_time',
+        'replay_times',
         'is_mastered'
     ];
 
