@@ -7,7 +7,12 @@ use App\Models\Student;
 use App\Models\StudentProgress;
 class StudentController extends Controller
 {
-    //
+    //Hiển thị danh sách sinh viên
+    public function index()
+    {
+        $students = Student::all();
+        return response()->json(['success' => true, 'data' => $students]);
+    }
     public function show($id)
     {
         $student = Student::where('student_id', $id)->first();

@@ -15,6 +15,7 @@ Route::get('/dashboard/tables', [DashboardController::class, 'getTables']);
 Route::get('/dashboard/data/{table}', [DashboardController::class, 'getTableData']);
 
 //Route cho student
+Route::get('/students', [StudentController::class, 'index'])->name('student.index');
 Route::get('/student/{id}', [StudentController::class, 'show'])->name('student.show');
 Route::post('/student', [StudentController::class, 'store'])->name('student.store');
 Route::put('/student/{id}', [StudentController::class, 'update'])->name('student.update');
@@ -73,3 +74,11 @@ Route::get('/word-practise-video/{id}', [WordPractiseVideoController::class, 'sh
 Route::post('/word-practise-video', [WordPractiseVideoController::class, 'store'])->name('word-practise-video.store');
 Route::put('/word-practise-video/{id}', [WordPractiseVideoController::class, 'update'])->name('word-practise-video.update');
 Route::delete('/word-practise-video/{id}', [WordPractiseVideoController::class, 'destroy'])->name('word-practise-video.destroy');
+
+//Route cho enrolment
+use App\Http\Controllers\EnrolmentController;
+Route::get('/enrolments', [EnrolmentController::class, 'index'])->name('enrolment.index');
+Route::get('/enrolment/{id}', [EnrolmentController::class, 'show'])->name('enrolment.show');
+Route::post('/enrolment', [EnrolmentController::class, 'store'])->name('enrolment.store');
+Route::put('/enrolment/{id}', [EnrolmentController::class, 'update'])->name('enrolment.update');
+Route::delete('/enrolment/{id}', [EnrolmentController::class, 'destroy'])->name('enrolment.destroy');

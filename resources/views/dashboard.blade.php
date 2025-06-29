@@ -87,6 +87,9 @@
                     case 'word_practise_video':
                         showCreateWordPractiseVideoForm();
                         break;
+                    case 'enrolment':
+                        showCreateEnrolmentForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -448,6 +451,69 @@
                 }
             })
 
+            // Hiển thị form thêm Enrolment
+            function showCreateEnrolmentForm() {
+                document.getElementById('add-enrolment-form').style.display = 'block';
+                // Lấy danh sách sinh viên để hiển thị trong dropdown
+                fetch('/students')
+                    .then(res => res.json())
+                    .then(data => {
+                        const studentSelect = document.getElementById('enrolment-student-select');
+                        studentSelect.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(student => {
+                                studentSelect.innerHTML += `<option value="${student.student_id}">${student.username} (${student.student_id})</option>`;
+                            });
+                        }
+                    });
+                // Lấy danh sách khóa học để hiển thị trong dropdown
+                fetch('/courses')
+                    .then(res => res.json())
+                    .then(data => {
+                        const courseSelect = document.getElementById('enrolment-course-select');
+                        courseSelect.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(course => {
+                                courseSelect.innerHTML += `<option value="${course.course_id}">${course.nation} (${course.course_id})</option>`;
+                            });
+                        }
+                    });
+            }
+
+            // Gửi form thêm Enrolment
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-enrolment-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/enrolment', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('enrolment-form-message').innerText = 'Thêm Enrolment thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-enrolment-form').style.display = 'none';
+                                    document.getElementById('enrolment-form-message').innerText = '';
+                                    showData('enrolment');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('enrolment-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('enrolment-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -473,6 +539,9 @@
                         break;
                     case 'word_practise_video':
                         showEditWordPractiseVideoForm(id);
+                        break;
+                    case 'enrolment':
+                        showEditEnrolmentForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -947,7 +1016,80 @@
                         }
                     });
             }
-
+            // Hiển thị form sửa Enrolment
+            function showEditEnrolmentForm(enrolmentId) {
+                // Lấy thông tin đăng ký từ server
+                fetch(`/enrolment/${enrolmentId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-enrolment-form').style.display = 'block';
+                        const form = document.getElementById('update-enrolment-form');
+                        if (data.success && data.data) {
+                            const enrolment = data.data;
+                            // Lấy danh sách sinh viên để hiển thị trong dropdown
+                            fetch('/students')
+                                .then(res => res.json())
+                                .then(studentsData => {
+                                    const studentSelect = document.getElementById('edit-enrolment-student-select');
+                                    studentSelect.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                                    if (studentsData.success && studentsData.data) {
+                                        studentsData.data.forEach(student => {
+                                            studentSelect.innerHTML += `<option value="${student.student_id}" ${student.student_id === enrolment.student_id ? 'selected' : ''}>${student.username} (${student.student_id})</option>`;
+                                        });
+                                    }
+                                });
+                            // Lấy danh sách khóa học để hiển thị trong dropdown
+                            fetch('/courses')
+                                .then(res => res.json())
+                                .then(coursesData => {
+                                    const courseSelect = document.getElementById('edit-enrolment-course-select');
+                                    courseSelect.innerHTML = '<option value="">-- Chọn khóa học --</option>';
+                                    if (coursesData.success && coursesData.data) {
+                                        coursesData.data.forEach(course => {
+                                            courseSelect.innerHTML += `<option value="${course.course_id}" ${course.course_id === enrolment.course_id ? 'selected' : ''}>${course.nation} (${course.course_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.enrolment_id.value = enrolment.enrolment_id;
+                            form.student_id.value = enrolment.student_id;
+                            form.course_id.value = enrolment.course_id;
+                            form.enrolment_datetime= enrolment.enrolment_datetime;
+                            form.is_completed = enrolment.is_completed;
+                        } else {
+                            document.getElementById('edit-enrolment-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-enrolment-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/enrolment/${enrolmentId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-enrolment-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-enrolment-form').style.display = 'none';
+                                        document.getElementById('edit-enrolment-form-message').innerText = '';
+                                        showData('enrolment'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-enrolment-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-enrolment-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -994,6 +1136,12 @@
                         deleteId = id;
                         document.getElementById('delete-word-practise-video-form').style.display = 'block';
                         document.getElementById('delete-word-practise-video-form-message').innerText = '';
+                        break;
+                    case 'enrolment':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-enrolment-form').style.display = 'block';
+                        document.getElementById('delete-enrolment-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1209,7 +1357,42 @@
                     document.getElementById('delete-word-practise-video-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+
+            // Đóng popup xóa Enrolment
+            function closeDeleteEnrolmentPopup() {
+                document.getElementById('delete-enrolment-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Enrolment
+            function confirmDeleteEnrolment() {
+                fetch(`/enrolment/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteEnrolmentPopup();
+                    } else {
+                        document.getElementById('delete-enrolment-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-enrolment-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
+        {{-- Include các popup Enrolment--}}
+        @include('popup.add-enrolment-form')
+        @include('popup.edit-enrolment-form')
+        @include('popup.delete-enrolment-form')
+
         {{-- Include các popup word practise video--}}
         @include('popup.add-word-practise-video-form')
         @include('popup.edit-word-practise-video-form')
