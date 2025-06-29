@@ -96,6 +96,9 @@
                     case 'student_word_record':
                         showCreateStudentWordRecordForm();
                         break;
+                    case 'student_topic_record':
+                        showCreateStudentTopicRecordForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -647,6 +650,68 @@
                     }
                 }
             })
+            // Hiển thị form thêm Student Topic Record
+            function showCreateStudentTopicRecordForm() {
+                document.getElementById('add-student-topic-record-form').style.display = 'block';
+                // Lấy danh sách sinh viên để hiển thị trong dropdown
+                fetch('/students')
+                    .then(res => res.json())
+                    .then(data => {
+                        const studentSelect = document.getElementById('student-topic-record-student-select');
+                        studentSelect.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(student => {
+                                studentSelect.innerHTML += `<option value="${student.student_id}">${student.username} (${student.student_id})</option>`;
+                            });
+                        }
+                    });
+                // Lấy danh sách chủ đề để hiển thị trong dropdown
+                fetch('/topics')
+                    .then(res => res.json())
+                    .then(data => {
+                        const topicSelect = document.getElementById('student-topic-record-topic-select');
+                        topicSelect.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(topic => {
+                                topicSelect.innerHTML += `<option value="${topic.topic_id}">${topic.name} (${topic.topic_id})</option>`;
+                            });
+                        }
+                    });
+            }
+            // Gửi form thêm Student Topic Record
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-student-topic-record-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/student-topic-record', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('student-topic-record-form-message').innerText = 'Thêm Student Topic Record thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-student-topic-record-form').style.display = 'none';
+                                    document.getElementById('student-topic-record-form-message').innerText = '';
+                                    showData('student_topic_record');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('student-topic-record-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('student-topic-record-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
             // Hàm sửa dữ liệu trong bảng
             function editData(table, id) {
                 switch(table) {
@@ -682,6 +747,9 @@
                         break;
                     case 'student_word_record':
                         showEditStudentWordRecordForm(id);
+                        break;
+                    case 'student_topic_record':
+                        showEditStudentTopicRecordForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1382,6 +1450,79 @@
                         }
                     });
             }
+            //Hiển thị form sửa student topic Record
+            function showEditStudentTopicRecordForm(recordId) {
+                // Lấy thông tin từ server
+                fetch(`/student-topic-record/${recordId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-student-topic-record-form').style.display = 'block';
+                        const form = document.getElementById('update-student-topic-record-form');
+                        if (data.success && data.data) {
+                            const record = data.data;
+                            // Lấy danh sách sinh viên để hiển thị trong dropdown
+                            fetch('/students')
+                                .then(res => res.json())
+                                .then(studentsData => {
+                                    const select = document.getElementById('edit-student-topic-record-student-select');
+                                    select.innerHTML = '<option value="">-- Chọn sinh viên --</option>';
+                                    if (studentsData.success && studentsData.data) {
+                                        studentsData.data.forEach(student => {
+                                            select.innerHTML += `<option value="${student.student_id}" ${student.student_id === record.student_id ? 'selected' : ''}>${student.username} (${student.student_id})</option>`;
+                                        });
+                                    }
+                                });
+                            // Lấy danh sách chủ đề để hiển thị trong dropdown
+                            fetch('/topics')
+                                .then(res => res.json())
+                                .then(topicsData => {
+                                    const topicSelect = document.getElementById('edit-student-topic-record-topic-select');
+                                    topicSelect.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
+                                    if (topicsData.success && topicsData.data) {
+                                        topicsData.data.forEach(topic => {
+                                            topicSelect.innerHTML += `<option value="${topic.topic_id}" ${topic.topic_id === record.topic_id ? 'selected' : ''}>${topic.topic_name} (${topic.topic_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.student_topic_record_id.value = record.student_topic_record_id;
+                            form.student_id.value = record.student_id;
+                            form.topic_id.value = record.topic_id;
+                            form.is_completed.value = record.is_completed || 0; // Đảm bảo is_learned luôn có giá tri
+                        } else {
+                            document.getElementById('edit-student-topic-record-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-student-topic-record-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/student-topic-record/${recordId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-student-topic-record-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-student-topic-record-form').style.display = 'none';
+                                        document.getElementById('edit-student-topic-record-form-message').innerText = '';
+                                        showData('student_topic_record'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-student-topic-record-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-student-topic-record-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -1446,6 +1587,12 @@
                         deleteId = id;
                         document.getElementById('delete-student-word-record-form').style.display = 'block';
                         document.getElementById('delete-student-word-record-form-message').innerText = '';
+                        break;
+                    case 'student_topic_record':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-student-topic-record-form').style.display = 'block';
+                        document.getElementById('delete-student-topic-record-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1750,7 +1897,40 @@
                     document.getElementById('delete-student-word-record-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+            //Hiển thị form xóa Student Topic Record
+            function closeDeleteStudentTopicRecordPopup() {
+                document.getElementById('delete-student-topic-record-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+            // Xác nhận xóa Student Topic Record
+            function confirmDeleteStudentTopicRecord() {
+                fetch(`/student-topic-record/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteStudentTopicRecordPopup();
+                    } else {
+                        document.getElementById('delete-student-topic-record-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-student-topic-record-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
+        {{-- Include các popup --}}
+        {{-- Include các popup Student Topic Record --}}
+        @include('popup.add-student-topic-record-form')
+        @include('popup.edit-student-topic-record-form')
+        @include('popup.delete-student-topic-record-form')
         {{--Include các popup student word record--}}
         @include('popup.add-student-word-record-form')
         @include('popup.edit-student-word-record-form')

@@ -101,7 +101,7 @@
             </select>
 
             <label>Replay Time:</label>
-            <input type="number" name="replay_time" id="edit-replay-time-input" required placeholder="Nhập số lần xem lại" min="0">
+            <input type="number" name="replay_time" id="edit-word-replay-time-input" required placeholder="Nhập số lần xem lại" min="0">
 
             <label>Is Mastered:</label>
             <select name="is_mastered" id="edit-is-mastered-select" required>

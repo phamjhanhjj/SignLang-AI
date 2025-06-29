@@ -99,7 +99,7 @@
             <input type="datetime-local" name="enrolment_datetime" id="edit-enrolment-datetime" required>
 
             <label>Is Completed:</label>
-            <select name="is_completed" id="edit-is-completed-select" required>
+            <select name="is_completed" id="edit-enrolment-is-completed-select" required>
                 <option value="">-- Chọn trạng thái --</option>
                 <option value="0">False</option>
                 <option value="1">True</option>
