@@ -840,6 +840,12 @@
                         document.getElementById('delete-learn-videos-form').style.display = 'block';
                         document.getElementById('delete-learn-videos-form-message').innerText = '';
                         break;
+                    case 'practise_video':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-practise-video-form').style.display = 'block';
+                        document.getElementById('delete-practise-video-form-message').innerText = '';
+                        break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -995,8 +1001,50 @@
                     document.getElementById('delete-learn-videos-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
-        </script>
 
+            // Đóng popup xóa Practise Video
+            function closeDeletePractiseVideoPopup() {
+                document.getElementById('delete-practise-video-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Practise Video
+            function confirmDeletePractiseVideo() {
+                fetch(`/practise-video/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeletePractiseVideoPopup();
+                    } else {
+                        document.getElementById('delete-practise-video-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-practise-video-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
+        </script>
+        {{-- Include các popup Student --}}
+        @include('popup.add-student-form')
+        @include('popup.edit-student-form')
+        @include('popup.delete-student-form')
+
+        {{-- Include các popup Course --}}
+        @include('popup.add-course-form')
+        @include('popup.edit-course-form')
+        @include('popup.delete-course-form')
+        {{-- Include các popup Topic --}}
+        @include('popup.add-topic-form')
+        @include('popup.edit-topic-form')
+        @include('popup.delete-topic-form')
         {{-- Include các popup Practise Video --}}
         @include('popup.add-practise-video-form')
         @include('popup.edit-practise-video-form')
@@ -1012,25 +1060,12 @@
         @include('popup.edit-word-form')
         @include('popup.delete-word-form')
 
-        {{-- Include các popup Topic --}}
-        @include('popup.add-topic-form')
-        @include('popup.edit-topic-form')
-        @include('popup.delete-topic-form')
-
-        {{-- Include các popup Course --}}
-        @include('popup.add-course-form')
-        @include('popup.edit-course-form')
-        @include('popup.delete-course-form')
-
         {{-- Include các popup Student Progress --}}
         {{-- @include('popup.add-student-progress-form') --}}
         @include('popup.edit-student-progress-form')
         {{-- @include('popup.delete-student-progress-form') --}}
 
-        {{-- Include các popup Student --}}
-        @include('popup.add-student-form')
-        @include('popup.edit-student-form')
-        @include('popup.delete-student-form')
+
 
     </body>
 </html>
