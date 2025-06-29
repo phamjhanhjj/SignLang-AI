@@ -65,3 +65,11 @@ Route::get('/practise-video/{id}', [PractiseVideoController::class, 'show'])->na
 Route::post('/practise-video', [PractiseVideoController::class, 'store'])->name('practise-video.store');
 Route::put('/practise-video/{id}', [PractiseVideoController::class, 'update'])->name('practise-video.update');
 Route::delete('/practise-video/{id}', [PractiseVideoController::class, 'destroy'])->name('practise-video.destroy');
+
+//Route cho word practise video
+use App\Http\Controllers\WordPractiseVideoController;
+Route::get('/word-practise-videos', [WordPractiseVideoController::class, 'index'])->name('word-practise-video.index');
+Route::get('/word-practise-video/{id}', [WordPractiseVideoController::class, 'show'])->name('word-practise-video.show');
+Route::post('/word-practise-video', [WordPractiseVideoController::class, 'store'])->name('word-practise-video.store');
+Route::put('/word-practise-video/{id}', [WordPractiseVideoController::class, 'update'])->name('word-practise-video.update');
+Route::delete('/word-practise-video/{id}', [WordPractiseVideoController::class, 'destroy'])->name('word-practise-video.destroy');

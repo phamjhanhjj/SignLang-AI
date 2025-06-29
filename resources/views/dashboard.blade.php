@@ -84,6 +84,9 @@
                     case 'practise_video':
                         showCreatePractiseVideoForm();
                         break;
+                    case 'word_practise_video':
+                        showCreateWordPractiseVideoForm();
+                        break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
                         break;
@@ -380,6 +383,71 @@
                 }
             })
 
+
+            // Hiển thị form thêm Word Practise Video
+            function showCreateWordPractiseVideoForm() {
+                document.getElementById('add-word-practise-video-form').style.display = 'block';
+                // Lấy danh sách từ để hiển thị trong dropdown
+                fetch('/words')
+                    .then(res => res.json())
+                    .then(data => {
+                        const wordSelect = document.getElementById('word-practise-video-word-select');
+                        wordSelect.innerHTML = '<option value="">-- Chọn từ --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(word => {
+                                wordSelect.innerHTML += `<option value="${word.word_id}">${word.word} (${word.word_id})</option>`;
+                            });
+                        }
+                    });
+                // Lấy danh sách video thực hành để hiển thị trong dropdown
+                fetch('/practise-videos')
+                    .then(res => res.json())
+                    .then(data => {
+                        const videoSelect = document.getElementById('word-practise-video-video-select');
+                        videoSelect.innerHTML = '<option value="">-- Chọn video thực hành --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(video => {
+                                videoSelect.innerHTML += `<option value="${video.practise_video_id}">${video.video_link} (${video.practise_video_id})</option>`;
+                            });
+                        }
+                    });
+            }
+
+            // Gửi form thêm Word Practise Video
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-word-practise-video-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/word-practise-video', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('word-practise-video-form-message').innerText = 'Thêm Word Practise Video thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-word-practise-video-form').style.display = 'none';
+                                    document.getElementById('word-practise-video-form-message').innerText = '';
+                                    showData('word_practise_video');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('word-practise-video-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('word-practise-video-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
             function editData(table, id) {
                 switch(table) {
                     case 'student':
@@ -402,6 +470,9 @@
                         break;
                     case 'practise_video':
                         showEditPractiseVideoForm(id);
+                        break;
+                    case 'word_practise_video':
+                        showEditWordPractiseVideoForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -804,6 +875,78 @@
                         }
                     });
             }
+            // Hiển thị form sửa Word Practise Video
+            function showEditWordPractiseVideoForm(videoId) {
+                // Lấy thông tin video từ server
+                fetch(`/word-practise-video/${videoId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-word-practise-video-form').style.display = 'block';
+                        const form = document.getElementById('update-word-practise-video-form');
+                        if (data.success && data.data) {
+                            const video = data.data;
+                            // Lấy danh sách từ để hiển thị trong dropdown
+                            fetch('/words')
+                                .then(res => res.json())
+                                .then(wordsData => {
+                                    const wordSelect = document.getElementById('edit-word-practise-video-word-select');
+                                    wordSelect.innerHTML = '<option value="">-- Chọn từ --</option>';
+                                    if (wordsData.success && wordsData.data) {
+                                        wordsData.data.forEach(word => {
+                                            wordSelect.innerHTML += `<option value="${word.word_id}" ${word.word_id === video.word_id ? 'selected' : ''}>${word.word} (${word.word_id})</option>`;
+                                        });
+                                    }
+                                });
+                            // Lấy danh sách video thực hành để hiển thị trong dropdown
+                            fetch('/practise-videos')
+                                .then(res => res.json())
+                                .then(videosData => {
+                                    const videoSelect = document.getElementById('edit-word-practise-video-video-select');
+                                    videoSelect.innerHTML = '<option value="">-- Chọn video thực hành --</option>';
+                                    if (videosData.success && videosData.data) {
+                                        videosData.data.forEach(video => {
+                                            videoSelect.innerHTML += `<option value="${video.practise_video_id}" ${video.practise_video_id === video.practise_video_id ? 'selected' : ''}>${video.video_link} (${video.practise_video_id})</option>`;
+                                        });
+                                    }
+                                });
+                            form.word_practise_video_id.value = video.word_practise_video_id;
+                            form.word_id.value = video.word_id;
+                            form.practise_video_id.value = video.practise_video_id;
+                        } else {
+                            document.getElementById('edit-word-practise-video-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-word-practise-video-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/word-practise-video/${videoId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-word-practise-video-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-word-practise-video-form').style.display = 'none';
+                                        document.getElementById('edit-word-practise-video-form-message').innerText = '';
+                                        showData('word_practise_video'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-word-practise-video-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-word-practise-video-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
 
             //Xóa dữ liệu
             let deleteTable = '';
@@ -845,6 +988,12 @@
                         deleteId = id;
                         document.getElementById('delete-practise-video-form').style.display = 'block';
                         document.getElementById('delete-practise-video-form-message').innerText = '';
+                        break;
+                    case 'word_practise_video':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-word-practise-video-form').style.display = 'block';
+                        document.getElementById('delete-word-practise-video-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1031,7 +1180,41 @@
                     document.getElementById('delete-practise-video-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+            // Đóng popup xóa Word Practise Video
+            function closeDeleteWordPractiseVideoPopup() {
+                document.getElementById('delete-word-practise-video-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Word Practise Video
+            function confirmDeleteWordPractiseVideo() {
+                fetch(`/word-practise-video/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteWordPractiseVideoPopup();
+                    } else {
+                        document.getElementById('delete-word-practise-video-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-word-practise-video-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
+        {{-- Include các popup word practise video--}}
+        @include('popup.add-word-practise-video-form')
+        @include('popup.edit-word-practise-video-form')
+        @include('popup.delete-word-practise-video-form')
+
         {{-- Include các popup Student --}}
         @include('popup.add-student-form')
         @include('popup.edit-student-form')
