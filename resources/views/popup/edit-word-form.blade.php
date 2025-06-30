@@ -1,4 +1,4 @@
-<!-- filepath: d:\Đồ án liên ngành\SignLang-AI\resources\views\popup\edit-word-form.blade.php -->
+<!-- filepath: d:\Đồ án liên ngành\SignLang-AI\resources\views\popup\edit-topic-form.blade.php -->
 <style>
     #edit-word-form {
         display: none;
@@ -77,21 +77,21 @@
 <div id="edit-word-form">
     <div class="word-form-modal">
         <button class="close-btn" onclick="document.getElementById('edit-word-form').style.display='none'">&times;</button>
-        <h2>Sửa Word</h2>
+        <h2>Sửa thông tin word</h2>
         <form id="update-word-form">
             <label>Word ID:</label>
             <input type="text" name="word_id" readonly>
             <label>Topic:</label>
             <select name="topic_id" id="edit-word-topic-select" required>
-                <option value="">-- Chọn chủ đề --</option>
+                <option value="">-- Chọn khóa học --</option>
                 <!-- Option sẽ được render động bằng JS -->
             </select>
-            <label>Từ vựng:</label>
+            <label>Word:</label>
             <input type="text" name="word" required>
-            <label>Ý nghĩa:</label>
+            <label>Meaning:</label>
             <input type="text" name="meaning" required>
             <label>Điểm:</label>
-            <input type="number" name="score" min="0" value="0" required>
+            <input type="number" name="score" required min="0">
             <button type="submit">Cập nhật</button>
         </form>
         <div id="edit-word-form-message"></div>

@@ -75,9 +75,6 @@
                     case 'topic':
                         showCreateTopicForm();
                         break;
-                    case 'word':
-                        showCreateWordForm();
-                        break;
                     case 'learn_videos':
                         showCreateLearnVideosForm();
                         break;
@@ -98,6 +95,9 @@
                         break;
                     case 'student_topic_record':
                         showCreateStudentTopicRecordForm();
+                        break;
+                    case 'word':
+                        showCreateWordForm();
                         break;
                     default:
                         alert('Chức năng thêm dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -234,58 +234,6 @@
                         })
                         .catch(() => {
                             document.getElementById('topic-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
-                        });
-                    }
-                }
-            })
-
-            // Hiển thị form thêm Word
-            function showCreateWordForm() {
-                document.getElementById('add-word-form').style.display = 'block';
-                // Lấy danh sách topic để hiển thị trong dropdown
-                fetch('/topics')
-                    .then(res => res.json())
-                    .then(data => {
-                        const select = document.getElementById('word-topic-select');
-                        select.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
-                        if (data.success && data.data) {
-                            data.data.forEach(topic => {
-                                select.innerHTML += `<option value="${topic.topic_id}">${topic.name} (${topic.topic_id})</option>`;
-                            });
-                        }
-                    });
-            }
-
-            // Gửi form thêm Word
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('create-word-form');
-                if (form) {
-                    form.onsubmit = function(event) {
-                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
-                        const formData = new FormData(form);
-                        fetch('/word', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                document.getElementById('word-form-message').innerText = 'Thêm Word thành công!';
-                                form.reset();
-                                setTimeout(() => {
-                                    document.getElementById('add-word-form').style.display = 'none';
-                                    document.getElementById('word-form-message').innerText = '';
-                                    showData('word');
-                                }, 1000); // Hiển thị thông báo thành công
-                            } else {
-                                document.getElementById('word-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
-                            }
-                        })
-                        .catch(() => {
-                            document.getElementById('word-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
                         });
                     }
                 }
@@ -712,6 +660,59 @@
                     }
                 }
             })
+
+            // Hiển thị form thêm Word
+            function showCreateWordForm() {
+                document.getElementById('add-word-form').style.display = 'block';
+                // Lấy danh sách chủ đề để hiển thị trong dropdown
+                fetch('/topics')
+                    .then(res => res.json())
+                    .then(data => {
+                        const select = document.getElementById('word-topic-select');
+                        select.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
+                        if (data.success && data.data) {
+                            data.data.forEach(topic => {
+                                select.innerHTML += `<option value="${topic.topic_id}">${topic.name} (${topic.topic_id})</option>`;
+                            });
+                        }
+                    });
+            }
+
+            // Gửi form thêm Word
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('create-word-form');
+                if (form) {
+                    form.onsubmit = function(event) {
+                        event.preventDefault(); // Ngăn chặn hành động mặc định của form
+                        const formData = new FormData(form);
+                        fetch('/word', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('word-form-message').innerText = 'Thêm Word thành công!';
+                                form.reset();
+                                setTimeout(() => {
+                                    document.getElementById('add-word-form').style.display = 'none';
+                                    document.getElementById('word-form-message').innerText = '';
+                                    showData('word');
+                                }, 1000); // Hiển thị thông báo thành công
+                            } else {
+                                document.getElementById('word-form-message').innerText = 'Lỗi: ' + data.error; // Hiển thị lỗi nếu có
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('word-form-message').innerText = 'Lỗi kết nối. Vui lòng thử lại sau.';
+                        });
+                    }
+                }
+            })
+
             // Hàm sửa dữ liệu trong bảng
             function editData(table, id) {
                 switch(table) {
@@ -726,9 +727,6 @@
                         break;
                     case 'topic':
                         showEditTopicForm(id);
-                        break;
-                    case 'word':
-                        showEditWordForm(id);
                         break;
                     case 'learn_videos':
                         showEditLearnVideosForm(id);
@@ -750,6 +748,9 @@
                         break;
                     case 'student_topic_record':
                         showEditStudentTopicRecordForm(id);
+                        break;
+                    case 'word':
+                        showEditWordForm(id);
                         break;
                     default:
                         alert('Chức năng sửa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -962,68 +963,6 @@
                             })
                             .catch(() => {
                                 document.getElementById('edit-topic-form-message').innerText = 'Lỗi kết nối!';
-                            });
-                        }
-                    });
-            }
-
-            // Hiển thị form sửa Word
-            function showEditWordForm(wordId) {
-                // Lấy thông tin từ server
-                fetch(`/word/${wordId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        document.getElementById('edit-word-form').style.display = 'block';
-                        const form = document.getElementById('update-word-form');
-                        if (data.success && data.data) {
-                            const word = data.data;
-                            // Lấy danh sách topic để hiển thị trong dropdown
-                            fetch('/topics')
-                                .then(res => res.json())
-                                .then(topicsData => {
-                                    const select = document.getElementById('edit-word-topic-select');
-                                    select.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
-                                    if (topicsData.success && topicsData.data) {
-                                        topicsData.data.forEach(topic => {
-                                            select.innerHTML += `<option value="${topic.topic_id}" ${topic.topic_id === word.topic_id ? 'selected' : ''}>${topic.name} (${topic.topic_id})</option>`;
-                                        });
-                                    }
-                                });
-                            form.word_id.value = word.word_id;
-                            form.word.value = word.word;
-                            form.meaning.value = word.meaning;
-                            form.score.value = word.score != null ? word.score : 0; // Đảm bảo score luôn có giá trị
-                        } else {
-                            document.getElementById('edit-word-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
-                        }
-                        document.getElementById('edit-word-form-message').innerText = '';
-                        // Gắn lại sự kiện submit
-                        form.onsubmit = function(e) {
-                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
-                            const formData = new FormData(form);
-                            fetch(`/word/${wordId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'X-HTTP-Method-Override': 'PUT'
-                                },
-                                body: formData
-                            })
-                            .then(res => res.json())
-                            .then(resp => {
-                                if (resp.success) {
-                                    document.getElementById('edit-word-form-message').innerText = 'Cập nhật thành công!';
-                                    setTimeout(() => {
-                                        document.getElementById('edit-word-form').style.display = 'none';
-                                        document.getElementById('edit-word-form-message').innerText = '';
-                                        showData('word');
-                                    }, 1000);
-                                } else {
-                                    document.getElementById('edit-word-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
-                                }
-                            })
-                            .catch(() => {
-                                document.getElementById('edit-word-form-message').innerText = 'Lỗi kết nối!';
                             });
                         }
                     });
@@ -1523,6 +1462,57 @@
                         }
                     });
             }
+
+            // Hiển thị form sửa Word
+            function showEditWordForm(wordId) {
+                // Lấy thông tin từ server
+                fetch(`/word/${wordId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('edit-word-form').style.display = 'block';
+                        const form = document.getElementById('update-word-form');
+                        if (data.success && data.data) {
+                            const word = data.data;
+                            form.word_id.value = word.word_id;
+                            form.word.value = word.word;
+                            form.meaning.value = word.meaning;
+                            form.score.value = word.score || 0; // Đảm bảo score luôn có giá trị
+                        } else {
+                            document.getElementById('edit-word-form-message').innerText = data.message || 'Không tìm thấy dữ liệu!';
+                        }
+                        document.getElementById('edit-word-form-message').innerText = '';
+                        // Gắn lại sự kiện submit
+                        form.onsubmit = function(e) {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của form
+                            const formData = new FormData(form);
+                            fetch(`/word/${wordId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-HTTP-Method-Override': 'PUT'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(resp => {
+                                if (resp.success) {
+                                    document.getElementById('edit-word-form-message').innerText = 'Cập nhật thành công!';
+                                    setTimeout(() => {
+                                        document.getElementById('edit-word-form').style.display = 'none';
+                                        document.getElementById('edit-word-form-message').innerText = '';
+                                        showData('word'); // Tùy theo tên bảng của bạn
+                                    }, 1000);
+                                } else {
+                                    document.getElementById('edit-word-form-message').innerText = 'Lỗi: ' + (resp.message || 'Không thể cập nhật!');
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('edit-word-form-message').innerText = 'Lỗi kết nối!';
+                            });
+                        }
+                    });
+            }
+
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
@@ -1545,12 +1535,6 @@
                         deleteId = id;
                         document.getElementById('delete-topic-form').style.display = 'block';
                         document.getElementById('delete-topic-form-message').innerText = '';
-                        break;
-                    case 'word':
-                        deleteTable = table;
-                        deleteId = id;
-                        document.getElementById('delete-word-form').style.display = 'block';
-                        document.getElementById('delete-word-form-message').innerText = '';
                         break;
                     case 'learn_videos':
                         deleteTable = table;
@@ -1593,6 +1577,12 @@
                         deleteId = id;
                         document.getElementById('delete-student-topic-record-form').style.display = 'block';
                         document.getElementById('delete-student-topic-record-form-message').innerText = '';
+                        break;
+                    case 'word':
+                        deleteTable = table;
+                        deleteId = id;
+                        document.getElementById('delete-word-form').style.display = 'block';
+                        document.getElementById('delete-word-form-message').innerText = '';
                         break;
                     default:
                         alert('Chức năng xóa dữ liệu chưa được hỗ trợ cho bảng này.');
@@ -1687,36 +1677,6 @@
                 })
                 .catch(() => {
                     document.getElementById('delete-topic-form-message').innerText = 'Lỗi kết nối!';
-                });
-            }
-
-            // Đóng popup xóa Word
-            function closeDeleteWordPopup() {
-                document.getElementById('delete-word-form').style.display = 'none';
-                deleteTable = '';
-                deleteId = '';
-            }
-
-            // Xác nhận xóa Word
-            function confirmDeleteWord() {
-                fetch(`/word/${deleteId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-HTTP-Method-Override': 'DELETE'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showData(deleteTable);
-                        closeDeleteWordPopup();
-                    } else {
-                        document.getElementById('delete-word-form-message').innerText = data.message || 'Xóa thất bại!';
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('delete-word-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
 
@@ -1925,12 +1885,48 @@
                     document.getElementById('delete-student-topic-record-form-message').innerText = 'Lỗi kết nối!';
                 });
             }
+
+            //Đóng popup xóa Word
+            function closeDeleteWordPopup() {
+                document.getElementById('delete-word-form').style.display = 'none';
+                deleteTable = '';
+                deleteId = '';
+            }
+
+            // Xác nhận xóa Word
+            function confirmDeleteWord() {
+                fetch(`/word/${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-HTTP-Method-Override': 'DELETE'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showData(deleteTable);
+                        closeDeleteWordPopup();
+                    } else {
+                        document.getElementById('delete-word-form-message').innerText = data.message || 'Xóa thất bại!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-word-form-message').innerText = 'Lỗi kết nối!';
+                });
+            }
         </script>
         {{-- Include các popup --}}
+
+        {{-- Include các popup Word --}}
+        @include('popup.add-word-form')
+        @include('popup.edit-word-form')
+        @include('popup.delete-word-form')
         {{-- Include các popup Student Topic Record --}}
         @include('popup.add-student-topic-record-form')
         @include('popup.edit-student-topic-record-form')
         @include('popup.delete-student-topic-record-form')
+
         {{--Include các popup student word record--}}
         @include('popup.add-student-word-record-form')
         @include('popup.edit-student-word-record-form')
@@ -1971,11 +1967,6 @@
         @include('popup.add-learn-videos-form')
         @include('popup.edit-learn-videos-form')
         @include('popup.delete-learn-videos-form')
-
-        {{-- Include các popup Word --}}
-        @include('popup.add-word-form')
-        @include('popup.edit-word-form')
-        @include('popup.delete-word-form')
 
         {{-- Include các popup Student Progress --}}
         {{-- @include('popup.add-student-progress-form') --}}

@@ -1,4 +1,3 @@
-<!-- filepath: d:\Đồ án liên ngành\SignLang-AI\resources\views\popup\add-word-form.blade.php -->
 <style>
     #add-word-form {
         display: none;
@@ -94,15 +93,16 @@
         <form id="create-word-form">
             <label>Topic:</label>
             <select name="topic_id" id="word-topic-select" required>
-                <option value="">-- Chọn chủ đề --</option>
+                <option value="">-- Chọn topic   --</option>
                 <!-- Option sẽ được render động bằng JS -->
             </select>
-            <label>Từ vựng:</label>
+            </select>
+            <label>Word:</label>
             <input type="text" name="word" required>
-            <label>Ý nghĩa:</label>
+            <label>Meaning:</label>
             <input type="text" name="meaning" required>
             <label>Điểm:</label>
-            <input type="number" name="score" required min="0" value="0">
+            <input type="number" name="score" required min="0">
             <button type="submit">Lưu</button>
         </form>
         <div id="word-form-message"></div>

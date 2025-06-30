@@ -52,3 +52,4 @@
         <button class="btn-delete" onclick="confirmDeleteWord()">Xóa</button>
         <div id="delete-word-form-message" style="margin-top:10px;color:red;"></div>
     </div>
+</div>
