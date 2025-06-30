@@ -7,36 +7,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.2
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
-    
+
     - name: Install dependencies
       run: composer install --no-dev --optimize-autoloader
-    
+
     - name: Generate application key
       run: php artisan key:generate --force
-    
+
     - name: Clear config cache
       run: php artisan config:clear
-    
+
     - name: Clear route cache
       run: php artisan route:clear
-    
+
     - name: Clear view cache
       run: php artisan view:clear
-    
+
     - name: Cache config
       run: php artisan config:cache
-    
+
     - name: Cache routes
       run: php artisan route:cache
-    
+
     - name: Cache views
       run: php artisan view:cache
