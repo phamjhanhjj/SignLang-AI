@@ -22,15 +22,15 @@ class StudentController extends Controller
     {
         $validated = $request->validate([
             'student_id' => 'required|unique:student,student_id',
-            'email_address' => ['required', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'],
-            'password' => 'required',
-            'username' => 'required',
-            'age' => 'required|integer',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required'
+            // 'email_address' => ['required', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'],
+            // 'password' => 'required',
+            'username' => 'nullable|string|max:255',
+            'age' => 'nullable|integer',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string'
         ]);
 
-        $validated['password'] = bcrypt($validated['password']);
+        // $validated['password'] = bcrypt($validated['password']);
 
         $student = Student::create($validated);
 
@@ -51,17 +51,17 @@ class StudentController extends Controller
         }
 
         $validated = $request->validate([
-            'email_address' => ['required', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'],
-            'username' => 'required',
-            'age' => 'required|integer',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required'
+            // 'email_address' => ['required', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'],
+            'username' => 'nullable|string|max:255',
+            'age' => 'nullable|integer',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string'
         ]);
 
         // Nếu có nhập password mới thì cập nhật, không thì giữ nguyên
-        if ($request->filled('password')) {
-            $validated['password'] = bcrypt($request->password);
-        }
+        // if ($request->filled('password')) {
+        //     $validated['password'] = bcrypt($request->password);
+        // }
 
         $student->update($validated);
 

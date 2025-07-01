@@ -767,12 +767,12 @@
                         document.getElementById('edit-student-form').style.display = 'block';
                         const form = document.getElementById('update-student-form');
                         form.student_id.value = data.student_id;
-                        form.email_address.value = data.email_address;
-                        form.password.value = '';
-                        form.username.value = data.username;
-                        form.age.value = data.age;
-                        form.date_of_birth.value = data.date_of_birth;
-                        form.gender.value = data.gender;
+                        // form.email_address.value = data.email_address;
+                        // form.password.value = '';
+                        form.username.value = data.username || '';
+                        form.age.value = data.age || '';
+                        form.date_of_birth.value = data.date_of_birth || '';
+                        form.gender.value = data.gender || '';
                         document.getElementById('edit-student-form-message').innerText = '';
                         // Gắn lại sự kiện submit
                         form.onsubmit = function(e) {

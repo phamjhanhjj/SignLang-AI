@@ -12,17 +12,17 @@ class Student extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'student_id',
-        'email_address',
-        'password',
+        // 'email_address',
+        // 'password',
         'username',
         'age',
         'date_of_birth',
         'gender'
     ];
 
-    protected $hidden = [
-        'password'
-    ];
+    // protected $hidden = [
+    //     'password'
+    // ];
 
     // Tự động tạo StudentProgress khi Student được tạo
     protected static function booted()

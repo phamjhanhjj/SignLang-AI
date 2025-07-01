@@ -49,18 +49,14 @@
             <form id="update-student-form">
                 <label>Student ID:</label>
                 <input type="text" name="student_id" readonly>
-                <label>Email:</label>
-                <input type="email" name="email_address" pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$" required>
-                <label>Password (để trống nếu không đổi):</label>
-                <input type="password" name="password">
                 <label>Username:</label>
-                <input type="text" name="username" required>
+                <input type="text" name="username" >
                 <label>Age:</label>
-                <input type="number" name="age" required min="1">
+                <input type="number" name="age"  min="1">
                 <label>Date of Birth:</label>
-                <input type="date" name="date_of_birth" required>
+                <input type="date" name="date_of_birth" >
                 <label>Gender:</label>
-                <select name="gender" required>
+                <select name="gender" >
                     <option value="">Chọn giới tính</option>
                     <option value="Nam">Nam</option>
                     <option value="Nữ">Nữ</option>
