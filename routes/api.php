@@ -10,3 +10,4 @@ Route::get('/test', function() {
 
 // Route cho API sinh viên
 Route::post('/student', [StudentApiController::class, 'receiveUserId'])->name('api.student.receiveUserId');
+Route::put('/student/{StudentId}', [StudentApiController::class, 'update'])->name('api.student.update');

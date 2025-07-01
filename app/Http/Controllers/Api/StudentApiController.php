@@ -71,6 +71,74 @@ class StudentApiController extends Controller
         ]);
     }
 
+    public function update(Request $request, $studentId)
+    {
+        try {
+            // Check if request is JSON
+            if (!$request->isJson()) {
+                return $this->errorResponse('Invalid request format, JSON expected', 400);
+            }
+
+            // Validate data (only student_id must match URL parameter)
+            $validator = Validator::make(array_merge(['student_id' => $studentId], $request->json()->all()), [
+                'student_id' => 'required|string|exists:student,student_id',
+                'username' => 'nullable|string',
+                'age' => 'nullable|integer',
+                'date_of_birth' => 'nullable|date',
+                'gender' => 'nullable|string',
+            ]);
+
+            if ($validator->fails()) {
+                Log::warning('Validation failed', ['errors' => $validator->errors()]);
+                return $this->errorResponse($validator->errors()->first(), 400);
+            }
+
+            // Find student by student_id
+            $student = Student::where('student_id', $studentId)->first();
+            if (!$student) {
+                Log::warning('Student not found', ['student_id' => $studentId]);
+                return $this->errorResponse('Student not found', 404);
+            }
+
+            // Get JSON data
+            $data = $request->json()->all();
+
+            // Prepare update data, only include provided fields
+            $updateData = [];
+            if (array_key_exists('username', $data)) {
+                $updateData['username'] = $data['username'] === '' ? null : $data['username'];
+            }
+            if (array_key_exists('age', $data)) {
+                $updateData['age'] = $data['age'] === '' ? null : $data['age'];
+            }
+            if (array_key_exists('date_of_birth', $data)) {
+                $updateData['date_of_birth'] = $data['date_of_birth'] === '' ? null : $data['date_of_birth'];
+            }
+            if (array_key_exists('gender', $data)) {
+                $updateData['gender'] = $data['gender'] === '' ? null : $data['gender'];
+            }
+
+            // Update student with provided fields only
+            $student->update($updateData);
+
+            Log::info('Student updated successfully', ['student_id' => $studentId, 'updated_fields' => $updateData]);
+
+            return $this->successResponse('Student updated successfully', 200, [
+                'student_id' => $student->student_id,
+                'username' => $student->username,
+                'age' => $student->age,
+                'date_of_birth' => $student->date_of_birth ? $student->date_of_birth->toDateString() : null,
+                'gender' => $student->gender,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error updating student', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return $this->errorResponse('Server error', 500);
+        }
+    }
     private function successResponse(string $message, int $status, array $data = []): \Illuminate\Http\JsonResponse
     {
         return response()->json([
