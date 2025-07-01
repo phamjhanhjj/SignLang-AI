@@ -9,4 +9,4 @@ Route::get('/test', function() {
 });
 
 // Route cho API sinh viên
-Route::post('/sign-up', [StudentApiController::class, 'receiveUserId'])->name('api.student.receiveUserId');
+Route::post('/student', [StudentApiController::class, 'receiveUserId'])->name('api.student.receiveUserId');

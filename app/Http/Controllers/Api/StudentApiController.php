@@ -4,105 +4,88 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StudentApiController extends Controller
 {
     public function receiveUserId(Request $request)
     {
         try {
-            // Kiểm tra xem request có phải là JSON không
+            // Kiểm tra request có phải JSON không
             if (!$request->isJson()) {
-                Log::error('Request is not JSON');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid request format, JSON expected',
-                    'received_data' => $request->all()
-                ], 400);
+                return $this->errorResponse('Invalid request format, JSON expected', 400);
             }
-            //Log file json nhận được
-            Log::info('Received JSON request', ['request' => $request->getContent()]);
-            // Debug: Log toàn bộ request
-            Log::info('Request received:', [
-                'headers' => $request->headers->all(),
-                'body' => $request->getContent(),
-                'json' => $request->json()->all(),
-                'all' => $request->all()
+
+            // Xác thực dữ liệu
+            $validator = Validator::make($request->json()->all(), [
+                'student_id' => 'required|string|unique:student,student_id',
             ]);
 
-            // Lấy dữ liệu JSON từ body
+            if ($validator->fails()) {
+                Log::warning('Validation failed', ['errors' => $validator->errors()]);
+                return $this->errorResponse($validator->errors()->first(), 400);
+            }
+
             $data = $request->json()->all();
+            $studentId = $data['student_id'];
 
-            // Debug: Kiểm tra dữ liệu nhận được
-            Log::info('Data received:', $data);
-
-            // Kiểm tra xem userId có tồn tại không
-            if (!isset($data['userId']) || empty($data['userId'])) {
-                Log::error('userId not found in request data');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'userId not found in request',
-                    'received_data' => $data
-                ], 400);
-            }
-
-            $userId = $data['userId'];
-            Log::info('Processing userId: ' . $userId);
-
-            // Kiểm tra xem student_id đã tồn tại chưa
-            $existingStudent = Student::where('student_id', $userId)->first();
-            if ($existingStudent) {
-                Log::info('Student already exists: ' . $userId);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Student already exists',
-                    'student_id' => $userId,
-                    'data' => $existingStudent
-                ], 200);
-            }
-
-            // Tạo student mới với student_id = userId
-            Log::info('Creating new student with ID: ' . $userId);
-
-            try {
-                // Debug: Kiểm tra model Student và fillable
-                Log::info('Student Model fillable:', (new Student())->getFillable());
-
-                $student = Student::create([
-                    'student_id' => $userId,
-                    'username' => null,
-                    'age' => null,
-                    'date_of_birth' => null,
-                    'gender' => null
+            // Kiểm tra student_id đã tồn tại
+            if ($this->studentExists($studentId)) {
+                return $this->successResponse('Student already exists', 200, [
+                    'student_id' => $studentId,
                 ]);
-
-                Log::info('Student created successfully: ' . $userId, ['student' => $student->toArray()]);
-            } catch (\Exception $createException) {
-                Log::error('Error creating student: ' . $createException->getMessage());
-                Log::error('Stack trace: ' . $createException->getTraceAsString());
-                throw $createException; // Re-throw để catch bên ngoài xử lý
             }
-            return response()->json([
-                'success' => true,
-                'message' => 'Student created successfully',
-                'student_id' => $userId,
-                'data' => $student
-            ], 201);
 
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error occurred',
-                'error' => $e->getMessage()
-            ], 500);
+            // Tạo student mới
+            $student = $this->createStudent($data);
+
+            return $this->successResponse('Student created successfully', 201, [
+                'student_id' => $student->student_id,
+                'username' => $student->username,
+            ]);
+
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred',
-                'error' => $e->getMessage()
-            ], 500);
+            Log::error('Error processing request', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return $this->errorResponse('Server error', 500);
         }
+    }
+
+    private function studentExists(string $studentId): bool
+    {
+        return Student::where('student_id', $studentId)->exists();
+    }
+
+    private function createStudent(array $data): Student
+    {
+        return Student::create([
+            'student_id' => $data['student_id'],
+            'username' => $data['username'] ?? null, // Cho phép username null
+            'age' => $data['age'] ?? null,
+            'date_of_birth' => $data['date_of_birth'] ?? null,
+            'gender' => $data['gender'] ?? null,
+        ]);
+    }
+
+    private function successResponse(string $message, int $status, array $data = []): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+        ], $status);
+    }
+
+    private function errorResponse(string $message, int $status): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'error_code' => $status,
+            'message' => $message,
+        ], $status);
     }
 }
