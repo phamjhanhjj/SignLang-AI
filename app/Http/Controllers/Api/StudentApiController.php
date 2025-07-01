@@ -13,6 +13,17 @@ class StudentApiController extends Controller
     public function receiveUserId(Request $request)
     {
         try {
+            // Kiểm tra xem request có phải là JSON không
+            if (!$request->isJson()) {
+                Log::error('Request is not JSON');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid request format, JSON expected',
+                    'received_data' => $request->all()
+                ], 400);
+            }
+            //Log file json nhận được
+            Log::info('Received JSON request', ['request' => $request->getContent()]);
             // Debug: Log toàn bộ request
             Log::info('Request received:', [
                 'headers' => $request->headers->all(),
