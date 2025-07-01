@@ -25,12 +25,12 @@ class Student extends Model
     // ];
 
     // Tự động tạo StudentProgress khi Student được tạo
-    protected static function booted()
-    {
-        static::created(function ($student) {
-            \App\Models\StudentProgress::create([
-                'student_id' => $student->student_id,
-            ]);
-        });
-    }
+    // protected static function booted()
+    // {
+    //     static::created(function ($student) {
+    //         \App\Models\StudentProgress::create([
+    //             'student_id' => $student->student_id,
+    //         ]);
+    //     });
+    // }
 }

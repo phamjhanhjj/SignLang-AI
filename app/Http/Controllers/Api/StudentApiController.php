@@ -65,15 +65,25 @@ class StudentApiController extends Controller
 
             // Tạo student mới với student_id = userId
             Log::info('Creating new student with ID: ' . $userId);
-            $student = Student::create([
-                'student_id' => $userId,
-                'username' => null,
-                'age' => null,
-                'date_of_birth' => null,
-                'gender' => null
-            ]);
 
-            Log::info('Student created successfully: ' . $userId);
+            try {
+                // Debug: Kiểm tra model Student và fillable
+                Log::info('Student Model fillable:', (new Student())->getFillable());
+
+                $student = Student::create([
+                    'student_id' => $userId,
+                    'username' => null,
+                    'age' => null,
+                    'date_of_birth' => null,
+                    'gender' => null
+                ]);
+
+                Log::info('Student created successfully: ' . $userId, ['student' => $student->toArray()]);
+            } catch (\Exception $createException) {
+                Log::error('Error creating student: ' . $createException->getMessage());
+                Log::error('Stack trace: ' . $createException->getTraceAsString());
+                throw $createException; // Re-throw để catch bên ngoài xử lý
+            }
             return response()->json([
                 'success' => true,
                 'message' => 'Student created successfully',
