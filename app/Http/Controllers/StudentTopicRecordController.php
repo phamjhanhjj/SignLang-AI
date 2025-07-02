@@ -14,9 +14,11 @@ class StudentTopicRecordController extends Controller
     }
 
     //Hiển thị thông tin sinh viên đã hoàn thành chủ đề theo id
-    public function show($id)
+    public function show($student_id, $topic_id)
     {
-        $studentTopicRecord = StudentTopicRecord::where('student_topic_record_id', $id)->first();
+        $studentTopicRecord = StudentTopicRecord::where('student_id', $student_id)
+            ->where('topic_id', $topic_id)
+            ->first();
         if (!$studentTopicRecord) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy bản ghi sinh viên cho chủ đề này!']);
         }
@@ -31,23 +33,15 @@ class StudentTopicRecordController extends Controller
             'topic_id' => 'required|exists:topic,topic_id',
             'is_completed' => 'required|boolean'
         ]);
-        //Sinh tự động student_topic_record_id
-        $lastRecord = StudentTopicRecord::orderBy('student_topic_record_id')->first();
-        if (!$lastRecord) {
-            $studentTopicRecordId = 'student_topic_record_1';
-        } else {
-            $lastId = (int) str_replace('student_topic_record_', '', $lastRecord->student_topic_record_id);
-            $studentTopicRecordId = 'student_topic_record_' . ($lastId + 1);
-        }
-        $validated['student_topic_record_id'] = $studentTopicRecordId;
+
         $studentTopicRecord = StudentTopicRecord::create($validated);
         return response()->json(['success' => true, 'data' => $studentTopicRecord]);
     }
 
     //Cập nhật bản ghi sinh viên cho chủ đề
-    public function update(Request $request, $id)
+    public function update(Request $request, $student_id, $topic_id)
     {
-        $studentTopicRecord = StudentTopicRecord::where('student_topic_record_id', $id)->first();
+        $studentTopicRecord = StudentTopicRecord::where('student_id', $student_id)->where('topic_id', $topic_id)->first();
         if (!$studentTopicRecord) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy bản ghi sinh viên cho chủ đề này!']);
         }
@@ -56,18 +50,30 @@ class StudentTopicRecordController extends Controller
             'topic_id' => 'required|exists:topic,topic_id',
             'is_completed' => 'required|boolean'
         ]);
-        $studentTopicRecord->update($validated);
-        return response()->json(['success' => true, 'data' => $studentTopicRecord]);
+
+        // Sử dụng query builder thay vì model instance để update
+        StudentTopicRecord::where('student_id', $student_id)
+            ->where('topic_id', $topic_id)
+            ->update($validated);
+
+        // Lấy lại record đã cập nhật để trả về
+        $updatedRecord = StudentTopicRecord::where('student_id', $student_id)->where('topic_id', $topic_id)->first();
+        return response()->json(['success' => true, 'data' => $updatedRecord]);
     }
 
     //Xóa bản ghi sinh viên cho chủ đề
-    public function destroy($id)
+    public function destroy($student_id, $topic_id)
     {
-        $studentTopicRecord = StudentTopicRecord::where('student_topic_record_id', $id)->first();
+        $studentTopicRecord = StudentTopicRecord::where('student_id', $student_id)->where('topic_id', $topic_id)->first();
         if (!$studentTopicRecord) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy bản ghi sinh viên cho chủ đề này!']);
         }
-        $studentTopicRecord->delete();
+
+        // Sử dụng query builder để xóa thay vì model instance
+        StudentTopicRecord::where('student_id', $student_id)
+            ->where('topic_id', $topic_id)
+            ->delete();
+
         return response()->json(['success' => true, 'message' => 'Bản ghi sinh viên cho chủ đề đã được xóa thành công!']);
     }
 }

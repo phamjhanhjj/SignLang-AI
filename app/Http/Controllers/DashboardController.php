@@ -41,10 +41,21 @@ class DashboardController extends Controller
             foreach ($columns as $col) {
                 $html .= "<td>{$rowArr[$col]}</td>";
             }
-            $html .= "<td>
-                <button onclick=\"editData('{$tableName}', '{$id}')\">Sửa</button>
-                <button onclick=\"deleteData('{$tableName}', '{$id}')\">Xóa</button>
-            </td>";
+
+            // Xử lý đặc biệt cho bảng student_topic_record có composite key
+            if ($tableName === 'student_topic_record') {
+                $studentId = $rowArr['student_id'];
+                $topicId = $rowArr['topic_id'];
+                $html .= "<td>
+                    <button onclick=\"editData('{$tableName}', '{$studentId}', '{$topicId}')\">Sửa</button>
+                    <button onclick=\"deleteData('{$tableName}', '{$studentId}', '{$topicId}')\">Xóa</button>
+                </td>";
+            } else {
+                $html .= "<td>
+                    <button onclick=\"editData('{$tableName}', '{$id}')\">Sửa</button>
+                    <button onclick=\"deleteData('{$tableName}', '{$id}')\">Xóa</button>
+                </td>";
+            }
             $html .= '</tr>';
         }
         $html .= '</table>';

@@ -714,7 +714,7 @@
             })
 
             // Hàm sửa dữ liệu trong bảng
-            function editData(table, id) {
+            function editData(table, id, secondId = null) {
                 switch(table) {
                     case 'student':
                         showEditStudentForm(id);
@@ -747,7 +747,7 @@
                         showEditStudentWordRecordForm(id);
                         break;
                     case 'student_topic_record':
-                        showEditStudentTopicRecordForm(id);
+                        showEditStudentTopicRecordForm(id, secondId);
                         break;
                     case 'word':
                         showEditWordForm(id);
@@ -1390,9 +1390,9 @@
                     });
             }
             //Hiển thị form sửa student topic Record
-            function showEditStudentTopicRecordForm(recordId) {
+            function showEditStudentTopicRecordForm(studentId, topicId) {
                 // Lấy thông tin từ server
-                fetch(`/student-topic-record/${recordId}`)
+                fetch(`/student-topic-record/${studentId}/${topicId}`)
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById('edit-student-topic-record-form').style.display = 'block';
@@ -1423,7 +1423,7 @@
                                         });
                                     }
                                 });
-                            form.student_topic_record_id.value = record.student_topic_record_id;
+                            // form.student_topic_record_id.value = record.student_topic_record_id;
                             form.student_id.value = record.student_id;
                             form.topic_id.value = record.topic_id;
                             form.is_completed.value = record.is_completed || 0; // Đảm bảo is_learned luôn có giá tri
@@ -1435,7 +1435,7 @@
                         form.onsubmit = function(e) {
                             e.preventDefault(); // Ngăn chặn hành động mặc định của form
                             const formData = new FormData(form);
-                            fetch(`/student-topic-record/${recordId}`, {
+                            fetch(`/student-topic-record/${studentId}/${topicId}`, {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1516,7 +1516,9 @@
             //Xóa dữ liệu
             let deleteTable = '';
             let deleteId = '';
-            function deleteData(table, id) {
+            let deleteStudentId = '';
+            let deleteTopicId = '';
+            function deleteData(table, id, secondId = null) {
                 switch(table) {
                     case 'student':
                         deleteTable = table;
@@ -1574,7 +1576,8 @@
                         break;
                     case 'student_topic_record':
                         deleteTable = table;
-                        deleteId = id;
+                        deleteStudentId = id;
+                        deleteTopicId = secondId;
                         document.getElementById('delete-student-topic-record-form').style.display = 'block';
                         document.getElementById('delete-student-topic-record-form-message').innerText = '';
                         break;
@@ -1865,7 +1868,7 @@
             }
             // Xác nhận xóa Student Topic Record
             function confirmDeleteStudentTopicRecord() {
-                fetch(`/student-topic-record/${deleteId}`, {
+                fetch(`/student-topic-record/${deleteStudentId}/${deleteTopicId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('student_topic_record', function (Blueprint $table) {
-            $table->string('student_topic_record_id')->primary();
+            // $table->string('student_topic_record_id')->primary();
             $table->string('student_id');
             $table->string('topic_id');
             $table->boolean('is_completed')->default(false);
@@ -20,6 +20,9 @@ return new class extends Migration
 
             $table->foreign('student_id')->references('student_id')->on('student')->onDelete('cascade');
             $table->foreign('topic_id')->references('topic_id')->on('topic')->onDelete('cascade');
+
+            // Uncomment the line below if you want to use a primary key
+            $table->primary(['student_id', 'topic_id'], 'student_topic_record_primary_key');
         });
     }
 

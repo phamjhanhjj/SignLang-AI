@@ -102,7 +102,7 @@ Route::delete('/student-word-record/{id}', [StudentWordRecordController::class, 
 //Route cho student topic record
 use App\Http\Controllers\StudentTopicRecordController;
 Route::get('/student-topic-records', [StudentTopicRecordController::class, 'index'])->name('student-topic-record.index');
-Route::get('/student-topic-record/{id}', [StudentTopicRecordController::class, 'show'])->name('student-topic-record.show');
+Route::get('/student-topic-record/{student_id}/{topic_id}', [StudentTopicRecordController::class, 'show'])->name('student-topic-record.show');
 Route::post('/student-topic-record', [StudentTopicRecordController::class, 'store'])->name('student-topic-record.store');
-Route::put('/student-topic-record/{id}', [StudentTopicRecordController::class, 'update'])->name('student-topic-record.update');
-Route::delete('/student-topic-record/{id}', [StudentTopicRecordController::class, 'destroy'])->name('student-topic-record.destroy');
+Route::put('/student-topic-record/{student_id}/{topic_id}', [StudentTopicRecordController::class, 'update'])->name('student-topic-record.update');
+Route::delete('/student-topic-record/{student_id}/{topic_id}', [StudentTopicRecordController::class, 'destroy'])->name('student-topic-record.destroy');

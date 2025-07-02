@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class StudentTopicRecord extends Model
 {
     protected $table = 'student_topic_record';
-    protected $primaryKey = 'student_topic_record_id';
+    // Bỏ composite primary key vì Laravel không hỗ trợ native
+    // protected $primaryKey = ['student_id', 'topic_id']; // Composite key
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'student_topic_record_id',
+        // 'student_topic_record_id',
         'student_id',
         'topic_id',
         'is_completed',

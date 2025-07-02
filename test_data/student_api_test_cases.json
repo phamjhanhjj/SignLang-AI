@@ -1,0 +1,54 @@
+{
+  "test_cases": [
+    {
+      "description": "Valid request - Create new student",
+      "request": {
+        "userId": "STUDENT001"
+      },
+      "expected_response": {
+        "success": true,
+        "message": "Student created successfully",
+        "student_id": "STUDENT001"
+      }
+    },
+    {
+      "description": "Valid request - Student already exists",
+      "request": {
+        "userId": "STUDENT001"
+      },
+      "expected_response": {
+        "success": true,
+        "message": "Student already exists",
+        "student_id": "STUDENT001"
+      }
+    },
+    {
+      "description": "Invalid request - Missing userId",
+      "request": {},
+      "expected_response": {
+        "success": false,
+        "message": "userId not found in request"
+      }
+    },
+    {
+      "description": "Invalid request - Empty userId",
+      "request": {
+        "userId": ""
+      },
+      "expected_response": {
+        "success": false,
+        "message": "userId not found in request"
+      }
+    },
+    {
+      "description": "Invalid request - Null userId",
+      "request": {
+        "userId": null
+      },
+      "expected_response": {
+        "success": false,
+        "message": "userId not found in request"
+      }
+    }
+  ]
+}

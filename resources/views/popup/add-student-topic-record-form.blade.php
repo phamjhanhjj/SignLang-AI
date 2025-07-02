@@ -89,7 +89,7 @@
 <div id="add-student-topic-record-form">
     <div class="student-topic-record-form-modal">
         <button class="close-btn" onclick="document.getElementById('add-student-topic-record-form').style.display='none'">&times;</button>
-        <h2>Thêm Student Practise Video Record</h2>
+        <h2>Thêm Student Topic Record</h2>
         <form id="create-student-topic-record-form">
             @csrf
             <label>Student:</label>

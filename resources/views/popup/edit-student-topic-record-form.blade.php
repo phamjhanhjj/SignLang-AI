@@ -79,16 +79,16 @@
         <button class="close-btn" onclick="document.getElementById('edit-student-topic-record-form').style.display='none'">&times;</button>
         <h2>Sửa thông tin Student Topic Record</h2>
         <form id="update-student-topic-record-form">
-            <label>Student Topic Record ID:</label>
-            <input type="text" name="student_topic_record_id" readonly>
+            {{-- <label>Student Topic Record ID:</label>
+            <input type="text" name="student_topic_record_id" readonly> --}}
             <label>Student:</label>
-            <select name="student_id" id="edit-student-topic-record-student-select" required>
+            <select name="student_id" id="edit-student-topic-record-student-select" readonly>
                 <option value="">-- Chọn Student --</option>
                 <!-- Option sẽ được render động bằng JS -->
             </select>
 
             <label>Topic:</label>
-            <select name="topic_id" id="edit-student-topic-record-topic-select" required>
+            <select name="topic_id" id="edit-student-topic-record-topic-select" readonly>
                 <option value="">-- Chọn topic --</option>
                 <!-- Option sẽ được render động bằng JS -->
             </select>
