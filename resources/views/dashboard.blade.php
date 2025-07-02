@@ -1473,6 +1473,17 @@
                         const form = document.getElementById('update-word-form');
                         if (data.success && data.data) {
                             const word = data.data;
+                            fetch('/topics')
+                                .then(res => res.json())
+                                .then(topicsData => {
+                                    const select = document.getElementById('edit-word-topic-select');
+                                    select.innerHTML = '<option value="">-- Chọn chủ đề --</option>';
+                                    if (topicsData.success && topicsData.data) {
+                                        topicsData.data.forEach(topic => {
+                                            select.innerHTML += `<option value="${topic.topic_id}" ${topic.topic_id === word.topic_id ? 'selected' : ''}>${topic.name} (${topic.topic_id})</option>`;
+                                        });
+                                    }
+                                });
                             form.word_id.value = word.word_id;
                             form.word.value = word.word;
                             form.meaning.value = word.meaning;
@@ -1512,6 +1523,7 @@
                         }
                     });
             }
+
 
             //Xóa dữ liệu
             let deleteTable = '';

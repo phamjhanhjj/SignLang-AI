@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Word;
+use App\Models\Topic;
 class WordController extends Controller
 {
     //Hiển thị danh sách từ
@@ -33,7 +34,7 @@ class WordController extends Controller
             'score' => 'required|integer|min:0'
         ]);
         //Sinh tự động id
-        $lastWord = Word::orderBy('word_id')->first();
+        $lastWord = Word::latest('word_id')->first();
         if (!$lastWord) {
             $wordId = 'word_1';
         } else {
@@ -42,6 +43,11 @@ class WordController extends Controller
         }
         $validated['word_id'] = $wordId;
         $word = Word::create($validated);
+
+        $topic = Topic::where('topic_id', $validated['topic_id'])->first();
+        if ($topic){
+            $topic->increment('number_of_word');
+        }
         return response()->json(['success' => true, 'data' => $word]);
     }
 
