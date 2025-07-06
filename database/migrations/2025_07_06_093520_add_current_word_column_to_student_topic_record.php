@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('student_topic_record', function (Blueprint $table) {
-            $table->integer('current_word')->default(0)->after('is_completed');
+            // Kiểm tra xem cột current_word đã tồn tại chưa
+            if (!Schema::hasColumn('student_topic_record', 'current_word')) {
+                $table->integer('current_word')->default(0)->after('is_completed');
+            }
         });
     }
 
@@ -22,7 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('student_topic_record', function (Blueprint $table) {
-            $table->dropColumn('current_word');
+            // Chỉ xóa nếu cột tồn tại
+            if (Schema::hasColumn('student_topic_record', 'current_word')) {
+                $table->dropColumn('current_word');
+            }
         });
     }
 };
