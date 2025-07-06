@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('student_id');
             $table->string('topic_id');
             $table->boolean('is_completed')->default(false);
-            $table->integer('current_word')->default(0)->after('is_completed'); // Assuming this is the current word index
+            $table->integer('current_word')->default(0); // Assuming this is the current word index
             $table->timestamps();
 
             $table->foreign('student_id')->references('student_id')->on('student')->onDelete('cascade');
