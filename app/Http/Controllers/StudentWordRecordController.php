@@ -34,17 +34,15 @@ class StudentWordRecordController extends Controller
             'is_mastered' => 'boolean'
         ]);
         //Sinh tự động student_word_record_id theo dạng student_word_record_1, student_word_record_2, ...
-        $lastRecord = StudentWordRecord::orderBy('student_word_record_id')->first();
-        if (!$lastRecord) {
-            $studentWordRecordId = 'student_word_record_1';
-        } else {
-            $lastId = (int) str_replace('student_word_record_', '', $lastRecord->student_word_record_id);
-            $studentWordRecordId = 'student_word_record_' . ($lastId + 1);
+        $maxId = StudentWordRecord::all()->map(function($record) {
+            return (int) str_replace('student_word_record_', '', $record->student_word_record_id);
+        })->max() ?? 0;
+
+        $studentWordRecordId = 'student_word_record_' . ($maxId + 1);
+            $validated['student_word_record_id'] = $studentWordRecordId;
+            $studentWordRecord = StudentWordRecord::create($validated);
+            return response()->json(['success' => true, 'data' => $studentWordRecord]);
         }
-        $validated['student_word_record_id'] = $studentWordRecordId;
-        $studentWordRecord = StudentWordRecord::create($validated);
-        return response()->json(['success' => true, 'data' => $studentWordRecord]);
-    }
 
     //Cập nhật thông tin bản ghi từ của học sinh
     public function update(Request $request, $id)

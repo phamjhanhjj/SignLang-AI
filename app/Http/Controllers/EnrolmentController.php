@@ -33,7 +33,7 @@ class EnrolmentController extends Controller
             'is_completed' => 'boolean'
         ]);
         // Sinh tự động enrolment_id
-        $lastEnrolment = Enrolment::orderBy('enrolment_id')->first();
+        $lastEnrolment = Enrolment::latest('enrolment_id')->first();
         if (!$lastEnrolment) {
             $enrolmentId = 'enrolment_1';
         } else {

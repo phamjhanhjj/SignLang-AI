@@ -17,6 +17,7 @@ class StudentTopicRecord extends Model
         'student_id',
         'topic_id',
         'is_completed',
+        'current_word', // Assuming this is the current word index
     ];
 
     public function student()

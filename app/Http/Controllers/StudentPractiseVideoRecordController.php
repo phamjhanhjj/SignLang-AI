@@ -34,7 +34,7 @@ class StudentPractiseVideoRecordController extends Controller
             'is_mastered' => 'boolean'
         ]);
         //Sinh tự động student_practise_video_record_id theo dạng student_practise_video_record_1, student_practise_video_record_2, ...
-        $lastRecord = StudentPractiseVideoRecord::orderBy('student_practise_video_record_id')->first();
+        $lastRecord = StudentPractiseVideoRecord::latest('student_practise_video_record_id')->first();
         if (!$lastRecord) {
             $studentPractiseVideoRecordId = 'student_practise_video_record_1';
         } else {

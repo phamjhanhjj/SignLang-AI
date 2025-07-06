@@ -76,6 +76,10 @@ class WordController extends Controller
             return response()->json(['success' => false, 'message' => 'Không tìm thấy từ!']);
         }
         $word->delete();
+        $topic = Topic::where('topic_id', $word->topic_id)->first();
+        if ($topic) {
+            $topic->decrement('number_of_word');
+        }
         return response()->json(['success' => true]);
     }
 }

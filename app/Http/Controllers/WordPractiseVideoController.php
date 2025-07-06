@@ -31,7 +31,7 @@ class WordPractiseVideoController extends Controller
             'practise_video_id' => 'required|exists:practise_video,practise_video_id',
         ]);
         //Sinh tự động word_practise_video_id theo dạng word_practise_video_1, word_practise_video_2, ...
-        $lastWordPractiseVideo = WordPractiseVideo::orderBy('word_practise_video_id')->first();
+        $lastWordPractiseVideo = WordPractiseVideo::latest('word_practise_video_id')->first();
         if (!$lastWordPractiseVideo) {
             $wordPractiseVideoId = 'word_practise_video_1';
         } else {

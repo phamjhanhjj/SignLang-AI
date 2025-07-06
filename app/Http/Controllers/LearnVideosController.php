@@ -31,7 +31,7 @@ class LearnVideosController extends Controller
             'video_url' => 'required|url'
         ]);
         //Sinh tự động id
-        $lastVideo = LearnVideos::orderBy('learn_video_id')->first();
+        $lastVideo = LearnVideos::latest('learn_video_id')->first();
         if (!$lastVideo) {
             $learnVideoId = 'learn_video_1';
         } else {

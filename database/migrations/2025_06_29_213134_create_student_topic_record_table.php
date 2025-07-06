@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('student_id');
             $table->string('topic_id');
             $table->boolean('is_completed')->default(false);
+            $table->integer('current_word')->default(0)->after('is_completed'); // Assuming this is the current word index
             $table->timestamps();
 
             $table->foreign('student_id')->references('student_id')->on('student')->onDelete('cascade');
@@ -31,6 +32,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('student_topic_record');
+        Schema::table('student_topic_record', function (Blueprint $table) {
+            $table->dropColumn('current_word'); // Remove the current_word column if it exists
+        });
+          Schema::dropIfExists('student_topic_record');
     }
 };

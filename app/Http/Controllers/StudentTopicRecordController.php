@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\StudentTopicRecord;
+use App\Models\Word;
+use App\Models\StudentWordRecord;
 class StudentTopicRecordController extends Controller
 {
     //Hiển thị danh sách sinh viên đã hoàn thành chủ đề
@@ -31,7 +33,8 @@ class StudentTopicRecordController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:student,student_id',
             'topic_id' => 'required|exists:topic,topic_id',
-            'is_completed' => 'required|boolean'
+            'is_completed' => 'required|boolean',
+            'current_word' => 'required|integer|min:0', // Assuming this is the current word index
         ]);
 
         $studentTopicRecord = StudentTopicRecord::create($validated);
@@ -48,7 +51,8 @@ class StudentTopicRecordController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:student,student_id',
             'topic_id' => 'required|exists:topic,topic_id',
-            'is_completed' => 'required|boolean'
+            'is_completed' => 'required|boolean',
+            'current_word' => 'required|integer|min:0', // Assuming this is the current word index
         ]);
 
         // Sử dụng query builder thay vì model instance để update
@@ -75,5 +79,26 @@ class StudentTopicRecordController extends Controller
             ->delete();
 
         return response()->json(['success' => true, 'message' => 'Bản ghi sinh viên cho chủ đề đã được xóa thành công!']);
+    }
+
+    //Tính toán lại current_word cho tất cả các bản ghi
+    public function recalculateCurrentWord($studentId, $topicId)
+    {
+        // Lấy tất cả word_id của topic
+        $wordIds = Word::where('topic_id', $topicId)->pluck
+        ('word_id');
+
+        // Đếm số từ đã mastered
+        $masteredCount = StudentWordRecord::where('student_id', $studentId)
+            ->whereIn('word_id', $wordIds)
+            ->where('is_mastered', true)
+            ->count();
+
+        // Cập nhật current_word
+        StudentTopicRecord::where('student_id', $studentId)
+            ->where('topic_id', $topicId)
+            ->update(['current_word' => $masteredCount]);
+
+        return $masteredCount;
     }
 }

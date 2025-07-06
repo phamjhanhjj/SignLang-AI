@@ -11,3 +11,7 @@ Route::get('/test', function() {
 // Route cho API sinh viên
 Route::post('/student', [StudentApiController::class, 'receiveUserId'])->name('api.student.receiveUserId');
 Route::put('/student/{StudentId}', [StudentApiController::class, 'update'])->name('api.student.update');
+
+// Route cho API học tập
+use App\Http\Controllers\Api\LearnApiController;
+Route::post('/learn', [LearnApiController::class, 'getlearn'])->name('api.learn.getlearn');

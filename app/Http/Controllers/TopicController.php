@@ -21,7 +21,7 @@ class TopicController extends Controller
         ]);
 
         //Sinh tự động topic_id theo dạng topic_1, topic_2, ...
-        $lastTopic = Topic::orderBy('topic_id')->first();
+        $lastTopic = Topic::latest('topic_id')->first();
         if (!$lastTopic) {
             $topicId = 'topic_1';
         } else {

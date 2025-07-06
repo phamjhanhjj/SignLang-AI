@@ -33,7 +33,7 @@ class PractiseVideoController extends Controller
             'score' => 'required|integer|min:0'
         ]);
         //Sinh tự động id
-        $lastVideo = PractiseVideo::orderBy('practise_video_id')->first();
+        $lastVideo = PractiseVideo::latest('practise_video_id')->first();
         if (!$lastVideo) {
             $practiseVideoId = 'practise_video_1';
         } else {
