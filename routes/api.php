@@ -15,3 +15,7 @@ Route::put('/student/{StudentId}', [StudentApiController::class, 'update'])->nam
 // Route cho API học tập
 use App\Http\Controllers\Api\LearnApiController;
 Route::post('/learn', [LearnApiController::class, 'getlearn'])->name('api.learn.getlearn');
+
+// Route cho API tiến độ học sinh
+use App\Http\Controllers\Api\StudentProgressApiController;
+Route::get('/user-metric/{studentId}', [StudentProgressApiController::class, 'getStudentProgress'])->name('api.student-progress.getStudentProgress');
