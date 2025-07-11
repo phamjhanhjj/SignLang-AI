@@ -111,6 +111,9 @@
                 <option value="1">True</option>
             </select>
 
+            <!-- Current Word sẽ tự động được đặt là 0 khi tạo mới -->
+            <input type="hidden" name="current_word" value="0">
+
             <button type="submit">Lưu</button>
         </form>
         <div id="student-topic-record-form-message"></div>

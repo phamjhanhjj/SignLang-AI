@@ -34,8 +34,13 @@ class StudentTopicRecordController extends Controller
             'student_id' => 'required|exists:student,student_id',
             'topic_id' => 'required|exists:topic,topic_id',
             'is_completed' => 'required|boolean',
-            'current_word' => 'required|integer|min:0', // Assuming this is the current word index
+            'current_word' => 'nullable|integer|min:0', // Cho phép nullable để có thể mặc định
         ]);
+
+        // Đặt current_word mặc định là 0 nếu không được cung cấp
+        if (!isset($validated['current_word'])) {
+            $validated['current_word'] = 0;
+        }
 
         $studentTopicRecord = StudentTopicRecord::create($validated);
         return response()->json(['success' => true, 'data' => $studentTopicRecord]);
@@ -52,7 +57,7 @@ class StudentTopicRecordController extends Controller
             'student_id' => 'required|exists:student,student_id',
             'topic_id' => 'required|exists:topic,topic_id',
             'is_completed' => 'required|boolean',
-            'current_word' => 'required|integer|min:0', // Assuming this is the current word index
+            'current_word' => 'nullable|integer|min:0', // Cho phép nullable
         ]);
 
         // Sử dụng query builder thay vì model instance để update

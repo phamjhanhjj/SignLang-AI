@@ -20,6 +20,10 @@ class StudentTopicRecord extends Model
         'current_word', // Assuming this is the current word index
     ];
 
+    protected $attributes = [
+        'current_word' => 0, // Mặc định current_word là 0
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'student_id');
