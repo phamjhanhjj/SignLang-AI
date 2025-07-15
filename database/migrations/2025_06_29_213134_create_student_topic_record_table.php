@@ -32,9 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('student_topic_record', function (Blueprint $table) {
-            $table->dropColumn('current_word'); // Remove the current_word column if it exists
-        });
-          Schema::dropIfExists('student_topic_record');
+        Schema::dropIfExists('student_topic_record');
     }
 };
