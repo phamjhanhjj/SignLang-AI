@@ -1,66 +1,234 @@
-<<<<<<< HEAD
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SignLang-AI Backend
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
 </p>
 
-## About Laravel
+## Giới thiệu
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**SignLang-AI** là hệ thống backend cho ứng dụng học ngôn ngữ ký hiệu Việt Nam. Dự án sử dụng Laravel framework để xây dựng RESTful API, hỗ trợ học sinh học và thực hành ngôn ngữ ký hiệu qua các video và bài tập tương tác.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tính năng chính
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🎯 Quản lý học sinh
+- Tạo và quản lý tài khoản học sinh
+- Theo dõi tiến độ học tập
+- Cập nhật thông tin cá nhân
 
-## Learning Laravel
+### 📚 Hệ thống học tập
+- **3 chủ đề học tập:**
+  - Topic 1: Alphabet (29 chữ cái)
+  - Topic 2: Numbers (22 số)
+  - Topic 3: Diacritics (5 dấu thanh)
+- Video học tập cho từng từ
+- Theo dõi trạng thái học tập và thành thạo
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🎮 Bài tập thực hành
+- **Practise 1:** Chọn đáp án đúng từ video
+- **Practise 2:** Ghép từ từ các thành phần
+- Theo dõi số lần replay và điểm số
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 📊 Theo dõi tiến độ
+- Phần trăm hoàn thành từng chủ đề
+- Số từ đã học và đã thành thạo
+- Hệ thống level và unlock chủ đề mới
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Cấu trúc Database
 
-## Laravel Sponsors
+### Bảng chính
+- `student` - Thông tin học sinh
+- `course` - Khóa học
+- `topic` - Chủ đề học tập
+- `word` - Từ vựng
+- `learn_videos` - Video học tập
+- `student_word_record` - Bản ghi học từ của học sinh
+- `student_topic_record` - Tiến độ học chủ đề
+- `student_progress` - Tổng quan tiến độ học sinh
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Cài đặt
 
-### Premium Partners
+### Yêu cầu hệ thống
+- PHP >= 8.1
+- Composer
+- MySQL >= 8.0
+- Laravel 11.x
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Hướng dẫn cài đặt
 
-## Contributing
+1. **Clone repository**
+```bash
+git clone https://github.com/yourusername/SignLang-AI.git
+cd SignLang-AI
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Cài đặt dependencies**
+```bash
+composer install
+```
 
-## Code of Conduct
+3. **Cấu hình môi trường**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Cấu hình database trong file `.env`**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=signlang_ai
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-## Security Vulnerabilities
+5. **Chạy migration và seeder**
+```bash
+php artisan migrate:fresh --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **Khởi chạy server**
+```bash
+php artisan serve
+```
 
-## License
+## API Endpoints
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# SignLang-AI
-BackEnd cho dự án Hệ thống học ngôn ngữ kí hiệu 
->>>>>>> 5e2ce5650483d0c059091479729a47ea5bc8fea1
+### Student Management
+```http
+POST /api/students                     # Tạo học sinh mới
+PUT /api/students/{id}                 # Cập nhật thông tin học sinh
+```
+
+### Topic & Learning
+```http
+GET /api/topics/{student_id}           # Danh sách chủ đề và tiến độ
+GET /api/learn                         # Lấy nội dung học tập
+```
+
+### Word Records
+```http
+GET /api/word-records/{student_id}     # Bản ghi từ của học sinh
+POST /api/word-records                 # Tạo bản ghi học từ mới
+PUT /api/word-records/{id}             # Cập nhật bản ghi học từ
+```
+
+### Progress Tracking
+```http
+GET /api/progress/{student_id}         # Tiến độ tổng quan
+POST /api/progress                     # Cập nhật tiến độ
+```
+
+## Cấu trúc dữ liệu
+
+### Response format
+```json
+{
+  "status": "success",
+  "data": {
+    // Dữ liệu response
+  },
+  "message": "Thông báo"
+}
+```
+
+### Error format
+```json
+{
+  "success": false,
+  "error_code": 400,
+  "message": "Mô tả lỗi"
+}
+```
+
+## Seeders
+
+Dự án bao gồm các seeder để tạo dữ liệu mẫu:
+
+```bash
+php artisan db:seed --class=CourseSeeder
+php artisan db:seed --class=TopicSeeder
+php artisan db:seed --class=WordSeeder
+php artisan db:seed --class=LearnVideoSeeder
+```
+
+## Logic nghiệp vụ
+
+### Auto-create Topic Records
+- Khi học sinh được tạo → Tự động tạo record cho Topic 1
+- Khi học từ thuộc topic mới → Tự động tạo record cho topic đó
+
+### Progress Calculation
+- `current_word`: Số từ đã thành thạo trong topic
+- `is_completed`: Topic hoàn thành khi học xong tất cả từ
+- `percentage`: Phần trăm = (current_word / total_words) × 100
+
+### Level System
+- Đạt ≥70% topic hiện tại → Unlock topic level tiếp theo
+- Tự động tạo record cho topic mới khi unlock
+
+## Cấu trúc thư mục
+
+```
+app/
+├── Http/
+│   └── Controllers/
+│       ├── Api/                    # API Controllers
+│       │   ├── StudentApiController.php
+│       │   ├── TopicListApiController.php
+│       │   ├── LearnApiController.php
+│       │   └── StudentWordRecordApiController.php
+│       └── [Other Controllers]
+├── Models/                         # Eloquent Models
+│   ├── Student.php
+│   ├── Topic.php
+│   ├── Word.php
+│   ├── StudentWordRecord.php
+│   └── StudentTopicRecord.php
+database/
+├── migrations/                     # Database migrations
+├── seeders/                        # Database seeders
+└── factories/                      # Model factories
+```
+
+## Phát triển
+
+### Thêm chủ đề mới
+1. Thêm topic vào `TopicSeeder`
+2. Thêm từ vựng vào `WordSeeder`
+3. Thêm video vào `LearnVideoSeeder`
+4. Cập nhật logic level trong controllers
+
+### Testing
+```bash
+php artisan test
+```
+
+### Code Style
+```bash
+./vendor/bin/pint
+```
+
+## Đóng góp
+
+1. Fork repository
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
+
+## Licence
+
+Dự án này được phát hành under [MIT License](LICENSE).
+
+## Liên hệ
+
+- **Nhóm phát triển:** [Tên nhóm]
+- **Email:** [email@example.com]
+- **GitHub:** [https://github.com/yourusername/SignLang-AI]
+
+---
+
+> 🚀 **SignLang-AI** - Hệ thống học ngôn ngữ ký hiệu thông minh
