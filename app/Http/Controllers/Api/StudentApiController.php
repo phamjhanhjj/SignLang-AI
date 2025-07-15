@@ -7,7 +7,7 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-
+use App\Models\StudentTopicRecord;
 class StudentApiController extends Controller
 {
     public function receiveUserId(Request $request)
@@ -62,13 +62,24 @@ class StudentApiController extends Controller
 
     private function createStudent(array $data): Student
     {
-        return Student::create([
+        $student = Student::create([
             'student_id' => $data['student_id'],
             'username' => $data['username'] ?? null, // Cho phép username null
             'age' => $data['age'] ?? null,
             'date_of_birth' => $data['date_of_birth'] ?? null,
             'gender' => $data['gender'] ?? null,
         ]);
+
+        // Tạo bản ghi StudentTopicRecord mặc định cho student
+        StudentTopicRecord::create([
+            'student_id' => $student->student_id,
+            'topic_id' => 'topic_1',
+            'is_completed' => false,
+            'current_word' => 0, // current_word là 0 khi tạo mới
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return $student;
     }
 
     public function update(Request $request, $studentId)
