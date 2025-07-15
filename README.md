@@ -225,9 +225,9 @@ Dự án này được phát hành under [MIT License](LICENSE).
 
 ## Liên hệ
 
-- **Nhóm phát triển:** [Tên nhóm]
-- **Email:** [email@example.com]
-- **GitHub:** [https://github.com/yourusername/SignLang-AI]
+- **Phát triển:** [PHẠM THỊ HẠNH]
+- **Email:** [phanh12012004@gmai.com]
+- **GitHub:** [https://github.com/phamjhanhjj/SignLang-AI]
 
 ---
 
