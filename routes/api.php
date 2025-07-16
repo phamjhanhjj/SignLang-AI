@@ -31,3 +31,7 @@ Route::get('/topic/{id}/word-list/{userID}', [WordListApiController::class, 'get
 // Route cho API bản ghi từ của học sinh
 use App\Http\Controllers\Api\StudentWordRecordApiController;
 Route::get('/my-word-list/{userID}', [StudentWordRecordApiController::class, 'getMyWordRecord'])->name('api.student-word-record.getMyWordRecord');
+
+// Route cho API cập nhật từ
+use App\Http\Controllers\Api\UpdateWordApiController;
+Route::put('/update-word/{userID}', [UpdateWordApiController::class, 'updayteWord'])->name('api.update-word.updayteWord');

@@ -58,106 +58,212 @@ class LearnApiController extends Controller
                 ->where('word.topic_id', $topic->topic_id)
                 ->get(['word.word_id', 'word.word', 'word.meaning', 'learn_videos.video_url']);
 
+            $studyCandidates = [];
+            $practiseCandidates = [];
+
             foreach ($words as $word) {
                 $wordRecord = StudentWordRecord::where('student_id', $studentId)
                     ->where('word_id', $word->word_id)
                     ->first();
 
                 if ($wordRecord) {
-                    // Nếu từ đã học nhưng chưa thành thạo, thêm vào practise1 và practise2
                     if (!$wordRecord->is_mastered) {
-                        // Xử lý practise1
-                        // Lấy 3 từ ngẫu nhiên từ bảng word
-                        $randomWords = DB::table('word')
-                            ->where('word_id', '!=', $word->word_id)
-                            ->inRandomOrder()
-                            ->take(3)
-                            ->pluck('word')
-                            ->toArray();
-
-                        // Thêm từ hiện tại vào danh sách answers và xáo trộn
-                        $answers1 = array_merge([$word->word], $randomWords);
-                        shuffle($answers1);
-
-                        $practise1[] = [
-                            'type' => 'practise1',
-                            'mainContent' => $word->video_url,
-                            'word' => [
-                                'id' => $word->word_id,
-                                'word' => $word->word,
-                                'description' => $word->meaning,
-                                'isLearned' => true,
-                                'replayTimes' => $wordRecord->replay_time ?? 0,
-                                'isMastered' => false,
-                            ],
-                            'answers' => $answers1,
-                            'correctAnswer' => $word->word,
-                        ];
-
-                        // Xử lý practise2
-                        // Tách từ hiện tại thành các tiếng
-                        $wordParts = explode(' ', trim($word->word));
-                        $answers2 = $wordParts;
-
-                        // Nếu chưa đủ 5 đáp án, lấy thêm từ ngẫu nhiên và tách thành tiếng
-                        if (count($answers2) < 5) {
-                            $needed = 5 - count($answers2);
-                            $additionalWords = DB::table('word')
-                                ->where('word_id', '!=', $word->word_id)
-                                ->inRandomOrder()
-                                ->take(3)
-                                ->pluck('word')
-                                ->toArray();
-
-                            foreach ($additionalWords as $additionalWord) {
-                                $additionalParts = explode(' ', trim($additionalWord));
-                                $answers2 = array_merge($answers2, $additionalParts);
-                                if (count($answers2) >= 5) {
-                                    break;
-                                }
-                            }
-                            // Cắt để đảm bảo 5-6 đáp án
-                            $answers2 = array_slice(array_unique($answers2), 0, 6);
-                        }
-
-                        // Xáo trộn answers
-                        shuffle($answers2);
-
-                        $practise2[] = [
-                            'type' => 'practise2',
-                            'mainContent' => $word->video_url,
-                            'word' => [
-                                'id' => $word->word_id,
-                                'word' => $word->word,
-                                'description' => $word->meaning,
-                                'isLearned' => true,
-                                'replayTimes' => $wordRecord->replay_time ?? 0,
-                                'isMastered' => false,
-                            ],
-                            'answers' => $answers2,
-                            'correctAnswer' => $word->word,
+                        $practiseCandidates[] = [
+                            'word_id' => $word->word_id,
+                            'word' => $word->word,
+                            'meaning' => $word->meaning,
+                            'video_url' => $word->video_url,
+                            'replay_time' => $wordRecord->replay_time ?? 0,
                         ];
                     }
                 } else {
-                    // Nếu từ chưa học, thêm vào study
-                    $study[] = [
-                        'type' => 'study',
-                        'mainContent' => $word->video_url,
-                        'word' => [
-                            'id' => $word->word_id,
-                            'word' => $word->word,
-                            'description' => $word->meaning,
-                            'score' => 0,
-                            'isLearned' => false,
-                            'replayTimes' => 0,
-                            'isMastered' => false,
-                        ],
-                        'answers' => null,
-                        'correctAnswer' => null,
+                    $studyCandidates[] = [
+                        'word_id' => $word->word_id,
+                        'word' => $word->word,
+                        'meaning' => $word->meaning,
+                        'video_url' => $word->video_url,
                     ];
                 }
             }
+
+            // Xác định số lượng dựa trên practiseCandidates
+            $practiseCount = count($practiseCandidates);
+            $studyCount = 4;
+            $practise1Count = 2;
+            $practise2Count = 2;
+
+            if ($practiseCount >= 3) {
+                $studyCount = 2;
+                $practise1Count = 3;
+                $practise2Count = 3;
+            } elseif ($practiseCount >= 2 && $practiseCount < 3) {
+                $studyCount = 4;
+                $practise1Count = 2;
+                $practise2Count = 2;
+            } elseif ($practiseCount == 1) {
+                $studyCount = 4;
+                $practise1Count = 2;
+                $practise2Count = 2;
+            } elseif ($practiseCount == 0) {
+                $studyCount = 4;
+                $practise1Count = 2;
+                $practise2Count = 2;
+            }
+
+            // Lấy ngẫu nhiên các chỉ số cho study
+            $allIndices = array_keys($studyCandidates);
+            $studyIndices = $studyCount > 0 && !empty($studyCandidates) ? array_rand($allIndices, $studyCount) : [];
+            if (!is_array($studyIndices)) $studyIndices = [$studyIndices];
+            $remainingIndices = array_diff($allIndices, $studyIndices);
+
+            // Lấy ngẫu nhiên các chỉ số cho practise1 và practise2 từ practiseCandidates
+            $practise1Indices = $practise1Count > 0 && !empty($practiseCandidates) ? array_rand($practiseCandidates, min($practise1Count, count($practiseCandidates))) : [];
+            if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
+            $practise2Indices = $practise2Count > 0 && !empty($practiseCandidates) ? array_rand(array_diff_key($practiseCandidates, array_flip($practise1Indices)), min($practise2Count, count($practiseCandidates) - count($practise1Indices))) : [];
+            if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
+
+            // Bổ sung practise từ studyCandidates nếu cần
+            $additionalPractise1Count = max(0, $practise1Count - count($practise1Indices));
+            $additionalPractise2Count = max(0, $practise2Count - count($practise2Indices));
+
+            if ($additionalPractise1Count > 0 || $additionalPractise2Count > 0) {
+                $availableIndices = array_values($remainingIndices);
+                $additionalIndices = $additionalPractise1Count + $additionalPractise2Count > 0 && !empty($availableIndices) ? array_rand($availableIndices, min($additionalPractise1Count + $additionalPractise2Count, count($availableIndices))) : [];
+                if (!is_array($additionalIndices)) $additionalIndices = [$additionalIndices];
+
+                for ($i = 0; $i < $additionalPractise1Count && $i < count($additionalIndices); $i++) {
+                    $index = $availableIndices[$additionalIndices[$i]];
+                    $practise1[] = $this->createPractise1($studyCandidates[$index], $studyCandidates);
+                }
+                for ($i = $additionalPractise1Count; $i < $additionalPractise1Count + $additionalPractise2Count && $i < count($additionalIndices); $i++) {
+                    $index = $availableIndices[$additionalIndices[$i]];
+                    $practise2[] = $this->createPractise2($studyCandidates[$index], $studyCandidates);
+                }
+            }
+
+            // Xử lý study
+            $study = [];
+            foreach ($studyIndices as $index) {
+                $word = $studyCandidates[$index];
+                $study[] = [
+                    'type' => 'study',
+                    'mainContent' => $word['video_url'],
+                    'word' => [
+                        'id' => $word['word_id'],
+                        'word' => $word['word'],
+                        'description' => $word['meaning'],
+                        'score' => 0,
+                        'isLearned' => false,
+                        'replayTimes' => 0,
+                        'isMastered' => false,
+                    ],
+                    'answers' => null,
+                    'correctAnswer' => null,
+                ];
+            }
+
+            // Xử lý practise1 từ practiseCandidates
+            foreach ($practise1Indices as $index) {
+                $word = $practiseCandidates[$index];
+                $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+                $answers1 = array_merge([$word['word']], array_slice($availableAnswers, 0, 3));
+                shuffle($answers1);
+
+                $practise1[] = [
+                    'type' => 'practise1',
+                    'mainContent' => $word['video_url'],
+                    'word' => [
+                        'id' => $word['word_id'],
+                        'word' => $word['word'],
+                        'description' => $word['meaning'],
+                        'isLearned' => true,
+                        'replayTimes' => $word['replay_time'],
+                        'isMastered' => false,
+                    ],
+                    'answers' => $answers1,
+                    'correctAnswer' => $word['word'],
+                ];
+            }
+
+            // Xử lý practise2 từ practiseCandidates
+            foreach ($practise2Indices as $index) {
+                $word = $practiseCandidates[$index];
+                $wordParts = explode(' ', trim($word['word']));
+                $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+                $answers2 = array_merge($wordParts, array_slice($availableAnswers, 0, max(0, 5 - count($wordParts))));
+
+                if (count($answers2) < 5) {
+                    $answers2 = array_pad($answers2, 5, $word['word']);
+                }
+                $answers2 = array_slice(array_unique($answers2), 0, 6);
+                shuffle($answers2);
+
+                $practise2[] = [
+                    'type' => 'practise2',
+                    'mainContent' => $word['video_url'],
+                    'word' => [
+                        'id' => $word['word_id'],
+                        'word' => $word['word'],
+                        'description' => $word['meaning'],
+                        'isLearned' => true,
+                        'replayTimes' => $word['replay_time'],
+                        'isMastered' => false,
+                    ],
+                    'answers' => $answers2,
+                    'correctAnswer' => $word['word'],
+                ];
+            }
         };
+
+        // Hàm tạo practise1
+        private function createPractise1($word, $studyCandidates) {
+            $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+            $answers1 = array_merge([$word['word']], array_slice($availableAnswers, 0, 3));
+            shuffle($answers1);
+
+            return [
+                'type' => 'practise1',
+                'mainContent' => $word['video_url'],
+                'word' => [
+                    'id' => $word['word_id'],
+                    'word' => $word['word'],
+                    'description' => $word['meaning'],
+                    'isLearned' => false,
+                    'replayTimes' => 0,
+                    'isMastered' => false,
+                ],
+                'answers' => $answers1,
+                'correctAnswer' => $word['word'],
+            ];
+        }
+
+        // Hàm tạo practise2
+        private function createPractise2($word, $studyCandidates) {
+            $wordParts = explode(' ', trim($word['word']));
+            $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+            $answers2 = array_merge($wordParts, array_slice($availableAnswers, 0, max(0, 5 - count($wordParts))));
+
+            if (count($answers2) < 5) {
+                $answers2 = array_pad($answers2, 5, $word['word']);
+            }
+            $answers2 = array_slice(array_unique($answers2), 0, 6);
+            shuffle($answers2);
+
+            return [
+                'type' => 'practise2',
+                'mainContent' => $word['video_url'],
+                'word' => [
+                    'id' => $word['word_id'],
+                    'word' => $word['word'],
+                    'description' => $word['meaning'],
+                    'isLearned' => false,
+                    'replayTimes' => 0,
+                    'isMastered' => false,
+                ],
+                'answers' => $answers2,
+                'correctAnswer' => $word['word'],
+            ];
+        }
 
         // Xử lý topic ở cấp độ hiện tại
         if ($topic) {
