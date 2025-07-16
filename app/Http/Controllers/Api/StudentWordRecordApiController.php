@@ -29,6 +29,11 @@ class StudentWordRecordApiController extends Controller
                 'student_word_record.is_mastered as isMastered'
             )->get();
 
+            $studentWordRecords = $studentWordRecords->map(function ($record) {
+                $record->isLearned = (bool) $record->isLearned;
+                $record->isMastered = (bool) $record->isMastered;
+                return $record;
+            });
             // Trả về danh sách bản ghi từ dưới dạng JSON
             return response()->json(
                 $studentWordRecords, 200);
