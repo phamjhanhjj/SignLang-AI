@@ -19,7 +19,15 @@ class StudentWordRecordApiController extends Controller
             }
 
             // Lấy danh sách bản ghi từ của học sinh từ cơ sở dữ liệu
-            $studentWordRecords = StudentWordRecord::where('student_id', $userID)->select('word_id', 'is_learned', 'replay_time', 'is_mastered')->get();
+            $studentWordRecords = StudentWordRecord::where('student_id', $userID)->join('word', 'student_word_record.word_id', '=', 'word.word_id')->select(
+                'student_word_record.word_id as id',
+                'word.word as word',
+                'word.meaning as description',
+                'word.score as score',
+                'student_word_record.is_learned as isLearned',
+                'student_word_record.replay_time as replayTimes',
+                'student_word_record.is_mastered as isMastered'
+            )->get();
 
             // Trả về danh sách bản ghi từ dưới dạng JSON
             return response()->json(
