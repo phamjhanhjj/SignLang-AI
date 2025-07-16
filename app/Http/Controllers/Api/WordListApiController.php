@@ -47,13 +47,13 @@ class WordListApiController extends Controller
 
                 // Chuẩn hóa dữ liệu để trả về
                 return [
-                    'id' => $word->word_id,
-                    'word' => $word->word,
-                    'description' => $word->description,
-                    'score' => $word->score,
-                    'isLearned' => $word->isLearned,
-                    'replayTimes' => $word->replayTimes,
-                    'isMastered' => $word->isMastered
+                    'id' => (string)$word->word_id,
+                    'word' => (string)$word->word,
+                    'description' => (string)$word->description,
+                    'score' => (int)$word->score,
+                    'isLearned' => (bool)$word->isLearned,
+                    'replayTimes' => (int)$word->replayTimes,
+                    'isMastered' => (bool)$word->isMastered
                 ];
             });
 

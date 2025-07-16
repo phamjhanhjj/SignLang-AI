@@ -22,9 +22,8 @@ class StudentWordRecordApiController extends Controller
             $studentWordRecords = StudentWordRecord::where('student_id', $userID)->select('word_id', 'is_learned', 'replay_time', 'is_mastered')->get();
 
             // Trả về danh sách bản ghi từ dưới dạng JSON
-            return response()->json([
-                $studentWordRecords
-            ], 200);
+            return response()->json(
+                $studentWordRecords, 200);
 
         } catch (\Exception $e) {
             return response()->json([
