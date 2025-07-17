@@ -10,16 +10,16 @@ use App\Models\StudentWordRecord;
 
 class LearnApiController extends Controller
 {
-    public function getlearn(Request $request)
+    public function getlearn(Request $request, $studentId)
     {
         // Kiểm tra request có phải JSON không
-        if (!$request->isJson()) {
-            return response()->json(['error' => 'Invalid request format, JSON expected'], 400);
-        }
+        // if (!$request->isJson()) {
+        //     return response()->json(['error' => 'Invalid request format, JSON expected'], 400);
+        // }
 
         // Xử lý dữ liệu JSON
-        $data = $request->json()->all();
-        $studentId = $data['student_id'] ?? null;
+        // $data = $request->json()->all();
+        // $studentId = $data['student_id'] ?? null;
 
         // Lấy level của sinh viên từ bảng student_progress
         $studentProgress = StudentProgress::where('student_id', $studentId)->first();
@@ -133,7 +133,7 @@ class LearnApiController extends Controller
                     // Nếu có đủ 6 từ practise, lấy riêng biệt
                     $practise1Indices = array_rand($practiseCandidates, 3);
                     if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
-                    
+
                     $remaining = array_diff_key($practiseCandidates, array_flip($practise1Indices));
                     $practise2Indices = array_rand($remaining, 3);
                     if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
@@ -141,7 +141,7 @@ class LearnApiController extends Controller
                     // Nếu có 3-5 từ practise, có thể lấy chung hoặc bổ sung từ study
                     $practise1Indices = array_rand($practiseCandidates, min(3, $practiseCount));
                     if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
-                    
+
                     // Cho practise2, có thể lấy chung từ practiseCandidates
                     $practise2Indices = array_rand($practiseCandidates, min(3, $practiseCount));
                     if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
@@ -165,13 +165,13 @@ class LearnApiController extends Controller
                 if ($practiseCount >= 3) {
                     // Trường hợp 1: practise >= 3, bổ sung từ study nếu cần
                     $availableForPractise = $studyIndices;
-                    
+
                     // Bổ sung cho practise1 nếu cần
                     for ($i = 0; $i < $additionalPractise1Count && $i < count($availableForPractise); $i++) {
                         $index = $availableForPractise[$i];
                         $practise1[] = $this->createPractise1Helper($studyCandidates[$index], $studyCandidates);
                     }
-                    
+
                     // Bổ sung cho practise2 nếu cần
                     for ($i = 0; $i < $additionalPractise2Count && $i < count($availableForPractise); $i++) {
                         $index = $availableForPractise[$i];
@@ -341,11 +341,11 @@ class LearnApiController extends Controller
 
         // Trả về kết quả cho client
         return response()->json([
-            'status' => 'success',
-            'student_id' => $studentId,
-            'level' => $level,
-            'topics' => $result ? [$result] : [],
-            'next_level' => $result_next_level ? [$result_next_level] : [],
+            // 'status' => 'success',
+            // 'student_id' => $studentId,
+            // 'level' => $level,
+            // 'topics' => $result ? [$result] : [],
+            // 'next_level' => $result_next_level ? [$result_next_level] : [],
             'study' => $study,
             'practise1' => $practise1,
             'practise2' => $practise2,
