@@ -88,23 +88,27 @@ class LearnApiController extends Controller
 
             // Xác định số lượng dựa trên practiseCandidates
             $practiseCount = count($practiseCandidates);
-            $studyCount = 4;
-            $practise1Count = 2;
-            $practise2Count = 2;
 
+            // Cải tiến logic theo yêu cầu mới
             if ($practiseCount >= 3) {
+                // Trường hợp 1: practise >= 3 → 2 study, 3 practise1, 3 practise2
                 $studyCount = 2;
                 $practise1Count = 3;
                 $practise2Count = 3;
-            } elseif ($practiseCount >= 2 && $practiseCount < 3) {
+            } elseif ($practiseCount == 2) {
+                // Trường hợp 2: practise = 2 → 4 study, 2 practise1, 2 practise2
                 $studyCount = 4;
                 $practise1Count = 2;
                 $practise2Count = 2;
             } elseif ($practiseCount == 1) {
+                // Trường hợp 3: practise = 1 → 4 study, 2 practise1, 2 practise2
+                // (1 practise từ practiseCandidates + 1 từ study)
                 $studyCount = 4;
                 $practise1Count = 2;
                 $practise2Count = 2;
-            } elseif ($practiseCount == 0) {
+            } else {
+                // Trường hợp 4: practise = 0 → 4 study, 2 practise1, 2 practise2
+                // (2 practise từ study)
                 $studyCount = 4;
                 $practise1Count = 2;
                 $practise2Count = 2;
@@ -112,40 +116,90 @@ class LearnApiController extends Controller
 
             // Lấy ngẫu nhiên các chỉ số cho study
             $allIndices = array_keys($studyCandidates);
-            $studyIndices = $studyCount > 0 && !empty($studyCandidates) ? array_rand($allIndices, $studyCount) : [];
-            if (!is_array($studyIndices)) $studyIndices = [$studyIndices];
+            $studyIndices = [];
+            if ($studyCount > 0 && !empty($studyCandidates)) {
+                $studyIndices = count($allIndices) > 1 ? array_rand($allIndices, min($studyCount, count($allIndices))) : $allIndices;
+                if (!is_array($studyIndices)) $studyIndices = [$studyIndices];
+            }
             $remainingIndices = array_diff($allIndices, $studyIndices);
 
             // Lấy ngẫu nhiên các chỉ số cho practise1 và practise2 từ practiseCandidates
-            $practise1Indices = $practise1Count > 0 && !empty($practiseCandidates) ? array_rand($practiseCandidates, min($practise1Count, count($practiseCandidates))) : [];
-            if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
-            $practise2Indices = $practise2Count > 0 && !empty($practiseCandidates) ? array_rand(array_diff_key($practiseCandidates, array_flip($practise1Indices)), min($practise2Count, count($practiseCandidates) - count($practise1Indices))) : [];
-            if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
+            $practise1Indices = [];
+            $practise2Indices = [];            if ($practiseCount >= 3) {
+                // Trường hợp 1: practise >= 3 → có thể lấy chung từ practiseCandidates
+                // Có thể lấy cả 3 từ cho cả practise1 và practise2
+                // Hoặc lấy 2 từ từ practise + 1 từ từ study
+                if ($practiseCount >= 6) {
+                    // Nếu có đủ 6 từ practise, lấy riêng biệt
+                    $practise1Indices = array_rand($practiseCandidates, 3);
+                    if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
+                    
+                    $remaining = array_diff_key($practiseCandidates, array_flip($practise1Indices));
+                    $practise2Indices = array_rand($remaining, 3);
+                    if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
+                } else {
+                    // Nếu có 3-5 từ practise, có thể lấy chung hoặc bổ sung từ study
+                    $practise1Indices = array_rand($practiseCandidates, min(3, $practiseCount));
+                    if (!is_array($practise1Indices)) $practise1Indices = [$practise1Indices];
+                    
+                    // Cho practise2, có thể lấy chung từ practiseCandidates
+                    $practise2Indices = array_rand($practiseCandidates, min(3, $practiseCount));
+                    if (!is_array($practise2Indices)) $practise2Indices = [$practise2Indices];
+                }
+            } elseif ($practiseCount == 2) {
+                // Trường hợp 2: practise = 2 → lấy hết 2 từ practiseCandidates
+                $practise1Indices = [array_keys($practiseCandidates)[0]];
+                $practise2Indices = [array_keys($practiseCandidates)[1]];
+            } elseif ($practiseCount == 1) {
+                // Trường hợp 3: practise = 1 → lấy 1 từ practiseCandidates
+                $practise1Indices = [array_keys($practiseCandidates)[0]];
+                // practise2Indices để trống, sẽ bổ sung từ study
+            }
+            // Trường hợp 4: practise = 0 → cả 2 đều trống, sẽ bổ sung từ study
 
             // Bổ sung practise từ studyCandidates nếu cần
             $additionalPractise1Count = max(0, $practise1Count - count($practise1Indices));
             $additionalPractise2Count = max(0, $practise2Count - count($practise2Indices));
 
             if ($additionalPractise1Count > 0 || $additionalPractise2Count > 0) {
-                $availableIndices = array_values($remainingIndices);
-                $additionalIndices = $additionalPractise1Count + $additionalPractise2Count > 0 && !empty($availableIndices) ? array_rand($availableIndices, min($additionalPractise1Count + $additionalPractise2Count, count($availableIndices))) : [];
-                if (!is_array($additionalIndices)) $additionalIndices = [$additionalIndices];
+                if ($practiseCount >= 3) {
+                    // Trường hợp 1: practise >= 3, bổ sung từ study nếu cần
+                    $availableForPractise = $studyIndices;
+                    
+                    // Bổ sung cho practise1 nếu cần
+                    for ($i = 0; $i < $additionalPractise1Count && $i < count($availableForPractise); $i++) {
+                        $index = $availableForPractise[$i];
+                        $practise1[] = $this->createPractise1Helper($studyCandidates[$index], $studyCandidates);
+                    }
+                    
+                    // Bổ sung cho practise2 nếu cần
+                    for ($i = 0; $i < $additionalPractise2Count && $i < count($availableForPractise); $i++) {
+                        $index = $availableForPractise[$i];
+                        $practise2[] = $this->createPractise2Helper($studyCandidates[$index], $studyCandidates);
+                    }
+                } else {
+                    // Trường hợp 2, 3, 4: Lấy practise từ chính 4 từ study
+                    $availableForPractise = $studyIndices;
 
-                for ($i = 0; $i < $additionalPractise1Count && $i < count($additionalIndices); $i++) {
-                    $index = $availableIndices[$additionalIndices[$i]];
-                    $practise1[] = $this->createPractise1($studyCandidates[$index], $studyCandidates);
-                }
-                for ($i = $additionalPractise1Count; $i < $additionalPractise1Count + $additionalPractise2Count && $i < count($additionalIndices); $i++) {
-                    $index = $availableIndices[$additionalIndices[$i]];
-                    $practise2[] = $this->createPractise2($studyCandidates[$index], $studyCandidates);
+                    // Lấy từ cho practise1 (nếu cần)
+                    for ($i = 0; $i < $additionalPractise1Count && $i < count($availableForPractise); $i++) {
+                        $index = $availableForPractise[$i];
+                        $practise1[] = $this->createPractise1Helper($studyCandidates[$index], $studyCandidates);
+                    }
+
+                    // Lấy từ cho practise2 (nếu cần)
+                    for ($i = 0; $i < $additionalPractise2Count && ($i + $additionalPractise1Count) < count($availableForPractise); $i++) {
+                        $index = $availableForPractise[$i + $additionalPractise1Count];
+                        $practise2[] = $this->createPractise2Helper($studyCandidates[$index], $studyCandidates);
+                    }
                 }
             }
 
             // Xử lý study
-            $study = [];
+            $studyItems = [];
             foreach ($studyIndices as $index) {
                 $word = $studyCandidates[$index];
-                $study[] = [
+                $studyItems[] = [
                     'type' => 'study',
                     'mainContent' => $word['video_url'],
                     'word' => [
@@ -161,6 +215,7 @@ class LearnApiController extends Controller
                     'correctAnswer' => null,
                 ];
             }
+            $study = array_merge($study, $studyItems);
 
             // Xử lý practise1 từ practiseCandidates
             foreach ($practise1Indices as $index) {
@@ -214,56 +269,6 @@ class LearnApiController extends Controller
                 ];
             }
         };
-
-        // Hàm tạo practise1
-        private function createPractise1($word, $studyCandidates) {
-            $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
-            $answers1 = array_merge([$word['word']], array_slice($availableAnswers, 0, 3));
-            shuffle($answers1);
-
-            return [
-                'type' => 'practise1',
-                'mainContent' => $word['video_url'],
-                'word' => [
-                    'id' => $word['word_id'],
-                    'word' => $word['word'],
-                    'description' => $word['meaning'],
-                    'isLearned' => false,
-                    'replayTimes' => 0,
-                    'isMastered' => false,
-                ],
-                'answers' => $answers1,
-                'correctAnswer' => $word['word'],
-            ];
-        }
-
-        // Hàm tạo practise2
-        private function createPractise2($word, $studyCandidates) {
-            $wordParts = explode(' ', trim($word['word']));
-            $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
-            $answers2 = array_merge($wordParts, array_slice($availableAnswers, 0, max(0, 5 - count($wordParts))));
-
-            if (count($answers2) < 5) {
-                $answers2 = array_pad($answers2, 5, $word['word']);
-            }
-            $answers2 = array_slice(array_unique($answers2), 0, 6);
-            shuffle($answers2);
-
-            return [
-                'type' => 'practise2',
-                'mainContent' => $word['video_url'],
-                'word' => [
-                    'id' => $word['word_id'],
-                    'word' => $word['word'],
-                    'description' => $word['meaning'],
-                    'isLearned' => false,
-                    'replayTimes' => 0,
-                    'isMastered' => false,
-                ],
-                'answers' => $answers2,
-                'correctAnswer' => $word['word'],
-            ];
-        }
 
         // Xử lý topic ở cấp độ hiện tại
         if ($topic) {
@@ -345,5 +350,55 @@ class LearnApiController extends Controller
             'practise1' => $practise1,
             'practise2' => $practise2,
         ]);
+    }
+
+    // Hàm tạo practise1
+    private function createPractise1Helper($word, $studyCandidates) {
+        $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+        $answers1 = array_merge([$word['word']], array_slice($availableAnswers, 0, 3));
+        shuffle($answers1);
+
+        return [
+            'type' => 'practise1',
+            'mainContent' => $word['video_url'],
+            'word' => [
+                'id' => $word['word_id'],
+                'word' => $word['word'],
+                'description' => $word['meaning'],
+                'isLearned' => false,
+                'replayTimes' => 0,
+                'isMastered' => false,
+            ],
+            'answers' => $answers1,
+            'correctAnswer' => $word['word'],
+        ];
+    }
+
+    // Hàm tạo practise2
+    private function createPractise2Helper($word, $studyCandidates) {
+        $wordParts = explode(' ', trim($word['word']));
+        $availableAnswers = array_diff(array_column($studyCandidates, 'word'), [$word['word']]);
+        $answers2 = array_merge($wordParts, array_slice($availableAnswers, 0, max(0, 5 - count($wordParts))));
+
+        if (count($answers2) < 5) {
+            $answers2 = array_pad($answers2, 5, $word['word']);
+        }
+        $answers2 = array_slice(array_unique($answers2), 0, 6);
+        shuffle($answers2);
+
+        return [
+            'type' => 'practise2',
+            'mainContent' => $word['video_url'],
+            'word' => [
+                'id' => $word['word_id'],
+                'word' => $word['word'],
+                'description' => $word['meaning'],
+                'isLearned' => false,
+                'replayTimes' => 0,
+                'isMastered' => false,
+            ],
+            'answers' => $answers2,
+            'correctAnswer' => $word['word'],
+        ];
     }
 }
