@@ -45,9 +45,10 @@ class LearnApiController extends Controller
         $study = [];
         $practise1 = [];
         $practise2 = [];
+        $practise3 = [];
 
         // Hàm xử lý từ cho một topic
-        $processTopicWords = function ($topic, $studentId) use (&$study, &$practise1, &$practise2) {
+        $processTopicWords = function ($topic, $studentId) use (&$study, &$practise1, &$practise2, &$practise3) {
             if (!$topic) {
                 return;
             }
@@ -125,7 +126,9 @@ class LearnApiController extends Controller
 
             // Lấy ngẫu nhiên các chỉ số cho practise1 và practise2 từ practiseCandidates
             $practise1Indices = [];
-            $practise2Indices = [];            if ($practiseCount >= 3) {
+            $practise2Indices = [];
+            
+            if ($practiseCount >= 3) {
                 // Trường hợp 1: practise >= 3 → có thể lấy chung từ practiseCandidates
                 // Có thể lấy cả 3 từ cho cả practise1 và practise2
                 // Hoặc lấy 2 từ từ practise + 1 từ từ study
@@ -211,8 +214,7 @@ class LearnApiController extends Controller
                         'replayTimes' => 0,
                         'isMastered' => false,
                     ],
-                    'answers' => null,
-                    'correctAnswer' => null,
+                    'answers' => [],
                 ];
             }
             $study = array_merge($study, $studyItems);
@@ -231,12 +233,12 @@ class LearnApiController extends Controller
                         'id' => $word['word_id'],
                         'word' => $word['word'],
                         'description' => $word['meaning'],
+                        'score' => 0,
                         'isLearned' => true,
                         'replayTimes' => $word['replay_time'],
                         'isMastered' => false,
                     ],
                     'answers' => $answers1,
-                    'correctAnswer' => $word['word'],
                 ];
             }
 
@@ -260,13 +262,56 @@ class LearnApiController extends Controller
                         'id' => $word['word_id'],
                         'word' => $word['word'],
                         'description' => $word['meaning'],
+                        'score' => 0,
                         'isLearned' => true,
                         'replayTimes' => $word['replay_time'],
                         'isMastered' => false,
                     ],
                     'answers' => $answers2,
-                    'correctAnswer' => $word['word'],
                 ];
+            }
+
+            // Xử lý practise3
+            if ($practiseCount > 0) {
+                // Nếu có practise candidates, lấy 1 từ bất kỳ
+                $practise3Index = array_rand($practiseCandidates, 1);
+                $word = $practiseCandidates[$practise3Index];
+                
+                $practise3[] = [
+                    'type' => 'practise3',
+                    'mainContent' => '',
+                    'word' => [
+                        'id' => $word['word_id'],
+                        'word' => $word['word'],
+                        'description' => $word['meaning'],
+                        'score' => 0,
+                        'isLearned' => true,
+                        'replayTimes' => $word['replay_time'],
+                        'isMastered' => false,
+                    ],
+                    'answers' => [],
+                ];
+            } else {
+                // Nếu không có practise candidates, lấy 1 từ từ study
+                if (!empty($studyIndices)) {
+                    $practise3Index = $studyIndices[0]; // Lấy từ đầu tiên trong study
+                    $word = $studyCandidates[$practise3Index];
+                    
+                    $practise3[] = [
+                        'type' => 'practise3',
+                        'mainContent' => '',
+                        'word' => [
+                            'id' => $word['word_id'],
+                            'word' => $word['word'],
+                            'description' => $word['meaning'],
+                            'score' => 0,
+                            'isLearned' => false,
+                            'replayTimes' => 0,
+                            'isMastered' => false,
+                        ],
+                        'answers' => [],
+                    ];
+                }
             }
         };
 
@@ -340,16 +385,21 @@ class LearnApiController extends Controller
         }
 
         // Trả về kết quả cho client
-        return response()->json([
-            // 'status' => 'success',
-            // 'student_id' => $studentId,
-            // 'level' => $level,
-            // 'topics' => $result ? [$result] : [],
-            // 'next_level' => $result_next_level ? [$result_next_level] : [],
-            'study' => $study,
-            'practise1' => $practise1,
-            'practise2' => $practise2,
-        ]);
+        $finalResult = [];
+        
+        // Thêm practise3 vào đầu
+        $finalResult = array_merge($finalResult, $practise3);
+        
+        // Thêm study
+        $finalResult = array_merge($finalResult, $study);
+        
+        // Thêm practise1
+        $finalResult = array_merge($finalResult, $practise1);
+        
+        // Thêm practise2
+        $finalResult = array_merge($finalResult, $practise2);
+        
+        return response()->json($finalResult);
     }
 
     // Hàm tạo practise1
@@ -365,12 +415,12 @@ class LearnApiController extends Controller
                 'id' => $word['word_id'],
                 'word' => $word['word'],
                 'description' => $word['meaning'],
+                'score' => 0,
                 'isLearned' => false,
                 'replayTimes' => 0,
                 'isMastered' => false,
             ],
             'answers' => $answers1,
-            'correctAnswer' => $word['word'],
         ];
     }
 
@@ -393,12 +443,12 @@ class LearnApiController extends Controller
                 'id' => $word['word_id'],
                 'word' => $word['word'],
                 'description' => $word['meaning'],
+                'score' => 0,
                 'isLearned' => false,
                 'replayTimes' => 0,
                 'isMastered' => false,
             ],
             'answers' => $answers2,
-            'correctAnswer' => $word['word'],
         ];
     }
 }
