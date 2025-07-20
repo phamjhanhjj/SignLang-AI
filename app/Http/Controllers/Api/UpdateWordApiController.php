@@ -95,7 +95,7 @@ class UpdateWordApiController extends Controller
                 $updatedRecords[] = $wordRecord;
 
                 // Tính điểm tăng thêm
-                $totalScoreIncrement += $score;
+                // $totalScoreIncrement += $score;
 
                 // Đếm số từ đã học và đã thành thạo
                 if ($isLearned) {
@@ -134,7 +134,7 @@ class UpdateWordApiController extends Controller
             // Lấy total_score cũ và cộng với điểm tăng thêm
             $studentProgress = StudentProgress::firstOrNew(['student_id' => $userID]);
             $oldTotalScore = $studentProgress->total_score ?? 0;
-            $newTotalScore = $oldTotalScore + $totalScoreIncrement;
+            $newTotalScore = $oldTotalScore + $wordScore;
 
             // Cập nhật level dựa trên hoàn thành topic
             $currentLevel = $studentProgress->level ?? 1;
@@ -172,7 +172,7 @@ class UpdateWordApiController extends Controller
                 'message' => 'Words updated successfully',
                 'data' => [
                     'updated_records' => count($updatedRecords),
-                    'total_score_increment' => $totalScoreIncrement,
+                    // 'total_score_increment' => $totalScoreIncrement,
                     'learned_words' => $learnedWords,
                     'mastered_words' => $masteredWords,
                     'student_total_score' => $newTotalScore,
