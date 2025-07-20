@@ -127,7 +127,7 @@ class LearnApiController extends Controller
             // Lấy ngẫu nhiên các chỉ số cho practise1 và practise2 từ practiseCandidates
             $practise1Indices = [];
             $practise2Indices = [];
-            
+
             if ($practiseCount >= 3) {
                 // Trường hợp 1: practise >= 3 → có thể lấy chung từ practiseCandidates
                 // Có thể lấy cả 3 từ cho cả practise1 và practise2
@@ -276,7 +276,7 @@ class LearnApiController extends Controller
                 // Nếu có practise candidates, lấy 1 từ bất kỳ
                 $practise3Index = array_rand($practiseCandidates, 1);
                 $word = $practiseCandidates[$practise3Index];
-                
+
                 $practise3[] = [
                     'type' => 'practise3',
                     'mainContent' => '',
@@ -296,7 +296,7 @@ class LearnApiController extends Controller
                 if (!empty($studyIndices)) {
                     $practise3Index = $studyIndices[0]; // Lấy từ đầu tiên trong study
                     $word = $studyCandidates[$practise3Index];
-                    
+
                     $practise3[] = [
                         'type' => 'practise3',
                         'mainContent' => '',
@@ -386,19 +386,19 @@ class LearnApiController extends Controller
 
         // Trả về kết quả cho client
         $finalResult = [];
-        
-        // Thêm practise3 vào đầu
-        $finalResult = array_merge($finalResult, $practise3);
-        
+
         // Thêm study
         $finalResult = array_merge($finalResult, $study);
-        
+
         // Thêm practise1
         $finalResult = array_merge($finalResult, $practise1);
-        
+
         // Thêm practise2
         $finalResult = array_merge($finalResult, $practise2);
-        
+
+        // Thêm practise3 vào đầu
+        $finalResult = array_merge($finalResult, $practise3);
+
         return response()->json($finalResult);
     }
 

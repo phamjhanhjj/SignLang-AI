@@ -34,4 +34,4 @@ Route::get('/my-word-list/{userID}', [StudentWordRecordApiController::class, 'ge
 
 // Route cho API cập nhật từ
 use App\Http\Controllers\Api\UpdateWordApiController;
-Route::post('/update-word/{userID}', [UpdateWordApiController::class, 'updayteWord'])->name('api.update-word.updayteWord');
+Route::post('/update-words/{userID}', [UpdateWordApiController::class, 'updateWord'])->name('api.update-word.updayteWord');
