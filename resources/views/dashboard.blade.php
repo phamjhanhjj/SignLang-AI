@@ -1933,10 +1933,11 @@
         </script>
         {{-- Include các popup --}}
 
-        {{-- Include các popup Word --}}
-        @include('popup.add-word-form')
-        @include('popup.edit-word-form')
-        @include('popup.delete-word-form')
+        {{-- Include các popup Student Progress --}}
+        {{-- @include('popup.add-student-progress-form') --}}
+        @include('popup.edit-student-progress-form')
+        {{-- @include('popup.delete-student-progress-form') --}}
+
         {{-- Include các popup Student Topic Record --}}
         @include('popup.add-student-topic-record-form')
         @include('popup.edit-student-topic-record-form')
@@ -1946,6 +1947,36 @@
         @include('popup.add-student-word-record-form')
         @include('popup.edit-student-word-record-form')
         @include('popup.delete-student-word-record-form')
+
+
+        {{-- Include các popup Student --}}
+        @include('popup.add-student-form')
+        @include('popup.edit-student-form')
+        @include('popup.delete-student-form')
+
+
+
+
+        {{-- Include các popup Practise Video --}}
+        @include('popup.add-practise-video-form')
+        @include('popup.edit-practise-video-form')
+        @include('popup.delete-practise-video-form')
+
+        {{--Include các popup Learn Video--}}
+        @include('popup.add-learn-videos-form')
+        @include('popup.edit-learn-videos-form')
+        @include('popup.delete-learn-videos-form')
+
+        {{-- Include các popup Topic --}}
+        @include('popup.add-topic-form')
+        @include('popup.edit-topic-form')
+        @include('popup.delete-topic-form')
+
+        {{-- Include các popup Course --}}
+        @include('popup.add-course-form')
+        @include('popup.edit-course-form')
+        @include('popup.delete-course-form')
+
         {{-- Include các popup Student practise video record --}}
         @include('popup.add-student-practise-video-record-form')
         @include('popup.edit-student-practise-video-record-form')
@@ -1960,35 +1991,9 @@
         @include('popup.edit-word-practise-video-form')
         @include('popup.delete-word-practise-video-form')
 
-        {{-- Include các popup Student --}}
-        @include('popup.add-student-form')
-        @include('popup.edit-student-form')
-        @include('popup.delete-student-form')
-
-        {{-- Include các popup Course --}}
-        @include('popup.add-course-form')
-        @include('popup.edit-course-form')
-        @include('popup.delete-course-form')
-        {{-- Include các popup Topic --}}
-        @include('popup.add-topic-form')
-        @include('popup.edit-topic-form')
-        @include('popup.delete-topic-form')
-        {{-- Include các popup Practise Video --}}
-        @include('popup.add-practise-video-form')
-        @include('popup.edit-practise-video-form')
-        @include('popup.delete-practise-video-form')
-
-        {{--Include các popup Learn Video--}}
-        @include('popup.add-learn-videos-form')
-        @include('popup.edit-learn-videos-form')
-        @include('popup.delete-learn-videos-form')
-
-        {{-- Include các popup Student Progress --}}
-        {{-- @include('popup.add-student-progress-form') --}}
-        @include('popup.edit-student-progress-form')
-        {{-- @include('popup.delete-student-progress-form') --}}
-
-
-
+        {{-- Include các popup Word --}}
+        @include('popup.add-word-form')
+        @include('popup.edit-word-form')
+        @include('popup.delete-word-form')
     </body>
 </html>
