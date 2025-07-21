@@ -161,7 +161,7 @@ class UpdateWordApiController extends Controller
             $studentProgress->update([
                 'level' => $newLevel,
                 'total_score' => $newTotalScore,
-                'word_score' => $wordScore, // Gán score từ JSON vào word_score
+                'word_score' => $newTotalScore, // Gán score từ JSON vào word_score
                 'updated_at' => now()
             ]);
 
