@@ -23,7 +23,9 @@ class DashboardController extends Controller
 
     //Lấy dữ liệu của một bảng cụ thể
     public function getTableData($tableName) {
-        $data = DB::table($tableName)->get();
+        // Sắp xếp dữ liệu theo thứ tự natural cho các ID
+        $data = $this->getSortedTableData($tableName);
+
         if ($data->isEmpty()) {
             return '<div class="empty-state">
                         <i class="fas fa-inbox"></i>
@@ -81,5 +83,54 @@ class DashboardController extends Controller
         }
         $html .= '</table>';
         return $html;
+    }
+
+    // Hàm helper để sắp xếp dữ liệu theo thứ tự natural
+    private function getSortedTableData($tableName) {
+        // Lấy tất cả dữ liệu từ bảng
+        $data = DB::table($tableName)->get();
+
+        if ($data->isEmpty()) {
+            return $data;
+        }
+
+        // Lấy tên cột đầu tiên (thường là primary key)
+        $columns = array_keys((array)$data[0]);
+        $primaryColumn = $columns[0];
+
+        // Chuyển đổi collection thành array để sắp xếp
+        $dataArray = $data->toArray();
+
+        // Sắp xếp theo thứ tự natural number
+        usort($dataArray, function($a, $b) use ($primaryColumn) {
+            $aValue = (array)$a;
+            $bValue = (array)$b;
+
+            $aId = $aValue[$primaryColumn];
+            $bId = $bValue[$primaryColumn];
+
+            // Kiểm tra nếu ID có dạng prefix_number (ví dụ: word_1, student_2)
+            if (preg_match('/^(.+)_(\d+)$/', $aId, $matchesA) &&
+                preg_match('/^(.+)_(\d+)$/', $bId, $matchesB)) {
+
+                // Nếu cùng prefix, so sánh theo số
+                if ($matchesA[1] === $matchesB[1]) {
+                    return (int)$matchesA[2] - (int)$matchesB[2];
+                }
+                // Nếu khác prefix, so sánh theo string
+                return strcmp($matchesA[1], $matchesB[1]);
+            }
+
+            // Nếu là số thuần túy
+            if (is_numeric($aId) && is_numeric($bId)) {
+                return (int)$aId - (int)$bId;
+            }
+
+            // Mặc định so sánh theo string
+            return strcmp($aId, $bId);
+        });
+
+        // Chuyển đổi lại thành collection
+        return collect($dataArray);
     }
 }
