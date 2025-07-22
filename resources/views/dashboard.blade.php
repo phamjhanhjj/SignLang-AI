@@ -1,67 +1,456 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+             <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Dashboard</title>
-        <style>
-            .box {
-                display: inline-block;
-                margin: 10px;
-                padding: 10px 20px;
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                background: #f5f5f5;
-                cursor: pointer;
-                transition: background 0.2s;
+         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-            .box:hover {
-                background: #e0e0e0;
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f5f7fa;
+                color: #333;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                opacity: 0.9;
+                font-size: 1.1em;
+            }
+
+            .dashboard-container {
+                display: flex;
+                min-height: calc(100vh - 140px);
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .sidebar {
+                width: 300px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                padding: 20px;
+                height: fit-content;
+                position: sticky;
+                top: 20px;
+            }
+
+            .sidebar h3 {
+                color: #4a5568;
+                margin-bottom: 20px;
+                font-size: 1.3em;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #e2e8f0;
+            }
+
+            .table-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .table-item {
+                padding: 12px 16px;
+                background: #f8fafc;
+                border: 2px solid transparent;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                color: #4a5568;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .table-item::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 4px;
+                background: #667eea;
+                transform: scaleY(0);
+                transition: transform 0.3s ease;
+            }
+
+            .table-item:hover {
+                background: linear-gradient(135deg, #667eea15, #764ba215);
+                border-color: #667eea;
+                color: #2d3748;
+                transform: translateX(5px);
+            }
+
+            .table-item:hover::before {
+                transform: scaleY(1);
+            }
+
+            .table-item.active {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                transform: translateX(5px);
+            }
+
+            .table-item.active::before {
+                transform: scaleY(1);
+                background: rgba(255,255,255,0.3);
+            }
+
+            .main-content {
+                flex: 1;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                padding: 30px;
+                min-height: 600px;
+            }
+
+            .content-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #e2e8f0;
+            }
+
+            .content-title {
+                font-size: 1.8em;
+                color: #2d3748;
+                font-weight: 600;
+            }
+
+            #crud-buttons {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            #crud-buttons button {
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 10px rgba(72, 187, 120, 0.3);
+            }
+
+            #crud-buttons button:hover {
+                background: linear-gradient(135deg, #38a169, #2f855a);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 80px 20px;
+                color: #718096;
+            }
+
+            .empty-state i {
+                font-size: 4em;
+                margin-bottom: 20px;
+                color: #cbd5e0;
+            }
+
+            .empty-state h3 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+                color: #4a5568;
+            }
+
+            .empty-state p {
+                font-size: 1.1em;
+                line-height: 1.6;
+            }
+
+            .data-table {
+                overflow-x: auto;
+            }
+
+            .data-table table {
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+
+            .data-table th {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 15px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 0.95em;
+            }
+
+            .data-table td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #e2e8f0;
+                color: #4a5568;
+            }
+
+            .data-table tr:hover {
+                background: #f8fafc;
+            }
+
+            .data-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            /* CSS cho nút sửa/xóa đẹp hơn */
+            .action-buttons {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .btn-edit, .btn-delete {
+                padding: 8px 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.85em;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                min-width: 70px;
+                justify-content: center;
+                text-decoration: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .btn-edit {
+                background: linear-gradient(135deg, #4299e1, #3182ce);
+                color: white;
+            }
+
+            .btn-edit:hover {
+                background: linear-gradient(135deg, #3182ce, #2c5282);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
+            }
+
+            .btn-delete {
+                background: linear-gradient(135deg, #f56565, #e53e3e);
+                color: white;
+            }
+
+            .btn-delete:hover {
+                background: linear-gradient(135deg, #e53e3e, #c53030);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(245, 101, 101, 0.3);
+            }
+
+            .btn-edit i, .btn-delete i {
+                font-size: 0.8em;
+            }
+
+            .btn-edit:active, .btn-delete:active {
+                transform: scale(0.95);
+            }
+
+            /* Tooltip hiệu ứng */
+            .btn-edit[title]:hover::after, .btn-delete[title]:hover::after {
+                content: attr(title);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.75em;
+                white-space: nowrap;
+                z-index: 1000;
+                margin-bottom: 4px;
+                pointer-events: none;
+            }
+
+            /* Responsive cho nút */
+            @media (max-width: 768px) {
+                .dashboard-container {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    position: static;
+                }
+
+                .table-list {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+
+                .table-item {
+                    flex: 1;
+                    min-width: 150px;
+                }
+
+                .action-buttons {
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                .btn-edit, .btn-delete {
+                    padding: 6px 10px;
+                    font-size: 0.8em;
+                    min-width: 60px;
+                }
+            }
+
+            /* Hiệu ứng loading khi click */
+            .btn-edit:focus, .btn-delete:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
             }
         </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
 
     <body>
-        <h1>Dashboard</h1>
-        <p>Welcome to your dashboard!</p>
-        <p>Here you can manage your account settings, view your activity, and more.</p>
-        <div id = "all-tables" class = "box-container"></div>
-        <div id  = "data-table" class = "data-table"></div>
+        <div class="header">
+            <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+            <p>Quản lý cơ sở dữ liệu hệ thống học ngôn ngữ ký hiệu</p>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <h3><i class="fas fa-database"></i> Danh sách bảng</h3>
+                <div id="all-tables" class="table-list"></div>
+            </div>
+
+            <div class="main-content">
+                <div class="content-header">
+                    <div class="content-title" id="current-table-title">
+                        <i class="fas fa-table"></i> Chọn bảng để xem dữ liệu
+                    </div>
+                </div>
+                <div id="data-table" class="data-table">
+                    <div class="empty-state">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <h3>Chưa chọn bảng nào</h3>
+                        <p>Vui lòng chọn một bảng từ danh sách bên trái để xem dữ liệu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
-            // Lấy danh sách tất cả các bảng trong database và hiển thị thành các box
+            let currentActiveTable = null;
+
+            // Lấy danh sách tất cả các bảng trong database và hiển thị thành các item
             function loadAllTables() {
                 fetch('/dashboard/tables')
                     .then(res => res.json())
                     .then(tables => {
+                        // Sắp xếp bảng theo alphabet
+                        tables.sort((a, b) => a.localeCompare(b));
+
                         let html = '';
                         tables.forEach(table => {
-                            html += `<div class="box" onclick="showData('${table}')">${table}</div>`;
+                            // Tạo tên hiển thị đẹp hơn
+                            const displayName = formatTableName(table);
+                            html += `<div class="table-item" onclick="selectTable('${table}')" data-table="${table}">
+                                        <i class="fas fa-table"></i> ${displayName}
+                                    </div>`;
                         });
                         document.getElementById('all-tables').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi tải danh sách bảng:', error);
+                        document.getElementById('all-tables').innerHTML =
+                            '<div style="color: #e53e3e; padding: 20px; text-align: center;">Không thể tải danh sách bảng</div>';
                     });
             }
 
-            // Hiển thị dữ liệu cho từng bảng khi người dùng nhấn vào box
+            // Format tên bảng để hiển thị đẹp hơn
+            function formatTableName(tableName) {
+                const nameMap = {
+                    'student': 'Sinh viên',
+                    'course': 'Khóa học',
+                    'topic': 'Chủ đề',
+                    'word': 'Từ vựng',
+                    'learn_videos': 'Video học tập',
+                    'practise_video': 'Video thực hành',
+                    'word_practise_video': 'Video thực hành từ',
+                    'enrolment': 'Đăng ký khóa học',
+                    'student_practise_video_record': 'Bản ghi thực hành video',
+                    'student_word_record': 'Bản ghi học từ',
+                    'student_topic_record': 'Bản ghi học chủ đề',
+                    'student_progress': 'Tiến độ học tập'
+                };
+                return nameMap[tableName] || tableName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            // Chọn bảng và hiển thị dữ liệu
+            function selectTable(table) {
+                // Cập nhật trạng thái active
+                if (currentActiveTable) {
+                    document.querySelector(`[data-table="${currentActiveTable}"]`).classList.remove('active');
+                }
+                document.querySelector(`[data-table="${table}"]`).classList.add('active');
+                currentActiveTable = table;
+
+                // Cập nhật tiêu đề
+                document.getElementById('current-table-title').innerHTML =
+                    `<i class="fas fa-table"></i> ${formatTableName(table)}`;
+
+                showData(table);
+            }
+
+            // Hiển thị dữ liệu cho từng bảng khi người dùng chọn
             function showData(table) {
                 // Hiển thị nút thêm dữ liệu bên trên bảng dữ liệu
                 let crudHtml = `
-                    <div id = "crud-buttons">
-                        <button onclick = "addData('${table}')">Thêm dữ liệu</button>
+                    <div id="crud-buttons">
+                        <button onclick="addData('${table}')">
+                            <i class="fas fa-plus"></i> Thêm dữ liệu
+                        </button>
                     </div>
                 `;
-                document.getElementById('data-table').innerHTML = crudHtml;
+                document.getElementById('data-table').innerHTML = crudHtml +
+                    '<div style="text-align: center; padding: 40px; color: #718096;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
 
-                //Hiển thị dữ liệu của bảng
+                // Hiển thị dữ liệu của bảng
                 fetch(`/dashboard/data/${table}`)
                     .then(res => res.text())
                     .then(html => {
                         document.getElementById('data-table').innerHTML = crudHtml + html;
                     })
+                    .catch(error => {
+                        console.error('Lỗi khi tải dữ liệu:', error);
+                        document.getElementById('data-table').innerHTML = crudHtml +
+                            '<div style="color: #e53e3e; text-align: center; padding: 40px;">Không thể tải dữ liệu bảng</div>';
+                    });
             }
-            // function hideAllPopups() {
-            //     const popups = document.querySelectorAll('[id$="-form"]');
-            //     popups.forEach(popup => popup.style.display = 'none');
-            // }
 
             // Hàm thêm dữ liệu vào bảng
             function addData(table) {

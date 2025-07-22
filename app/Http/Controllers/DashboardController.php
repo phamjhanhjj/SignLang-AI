@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// use App\Http\Controllers\DB;
 use Illuminate\Support\Facades\DB;
+
 class DashboardController extends Controller
 {
     public function index(){
@@ -25,14 +25,19 @@ class DashboardController extends Controller
     public function getTableData($tableName) {
         $data = DB::table($tableName)->get();
         if ($data->isEmpty()) {
-            return '<p>Không có dữ liệu.</p>';
+            return '<div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Không có dữ liệu</h3>
+                        <p>Bảng này chưa có dữ liệu nào. Hãy thêm dữ liệu mới.</p>
+                    </div>';
         }
+
         $columns = array_keys((array)$data[0]);
         $html = '<table border="1" cellpadding="5"><tr>';
         foreach ($columns as $col) {
             $html .= "<th>$col</th>";
         }
-        $html .= '<th>Actions</th></tr>';
+        $html .= '<th>Thao tác</th></tr>';
 
         foreach ($data as $row) {
             $rowArr = (array)$row;
@@ -47,13 +52,29 @@ class DashboardController extends Controller
                 $studentId = $rowArr['student_id'];
                 $topicId = $rowArr['topic_id'];
                 $html .= "<td>
-                    <button onclick=\"editData('{$tableName}', '{$studentId}', '{$topicId}')\">Sửa</button>
-                    <button onclick=\"deleteData('{$tableName}', '{$studentId}', '{$topicId}')\">Xóa</button>
+                    <div class='action-buttons'>
+                        <button class='btn-edit' onclick=\"editData('{$tableName}', '{$studentId}', '{$topicId}')\" title='Chỉnh sửa thông tin'>
+                            <i class='fas fa-edit'></i>
+                            Sửa
+                        </button>
+                        <button class='btn-delete' onclick=\"deleteData('{$tableName}', '{$studentId}', '{$topicId}')\" title='Xóa dữ liệu'>
+                            <i class='fas fa-trash'></i>
+                            Xóa
+                        </button>
+                    </div>
                 </td>";
             } else {
                 $html .= "<td>
-                    <button onclick=\"editData('{$tableName}', '{$id}')\">Sửa</button>
-                    <button onclick=\"deleteData('{$tableName}', '{$id}')\">Xóa</button>
+                    <div class='action-buttons'>
+                        <button class='btn-edit' onclick=\"editData('{$tableName}', '{$id}')\" title='Chỉnh sửa thông tin'>
+                            <i class='fas fa-edit'></i>
+                            Sửa
+                        </button>
+                        <button class='btn-delete' onclick=\"deleteData('{$tableName}', '{$id}')\" title='Xóa dữ liệu'>
+                            <i class='fas fa-trash'></i>
+                            Xóa
+                        </button>
+                    </div>
                 </td>";
             }
             $html .= '</tr>';
