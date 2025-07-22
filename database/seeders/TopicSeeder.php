@@ -16,7 +16,7 @@ class TopicSeeder extends Seeder
             [
                 'topic_id' => 'topic_1',
                 'course_id' => 'course_1',
-                'name' => 'alphabet',
+                'name' => 'Bảng chữ cái tiếng Việt',
                 'level' => 1, // Cấp độ của chủ đề
                 'number_of_word' => 29, // Số lượng từ trong chủ đề này
             ],
@@ -24,7 +24,7 @@ class TopicSeeder extends Seeder
             [
                 'topic_id' => 'topic_2',
                 'course_id' =>'course_1',
-                'name' => 'numbers',
+                'name' => 'Số đếm',
                 'level' => 2, // Cấp độ của chủ đề
                 'number_of_word' => 22, // Số lượng từ trong chủ đề này
             ],
@@ -32,7 +32,7 @@ class TopicSeeder extends Seeder
             [
                 'topic_id' => 'topic_3',
                 'course_id' => 'course_1',
-                'name' => 'diacritics',
+                'name' => 'Các dấu thanh tiếng Việt',
                 'level' => 3, // Cấp độ của chủ đề
                 'number_of_word' => 5, // Số lượng từ trong chủ đề này
             ],
